@@ -1,0 +1,11 @@
+### Register a BORROWER user
+POST http://localhost:4005/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "role": "BORROWER",
+  "fullName": "Test User",
+  "dateOfBirth": "1990-01-01"
+}
