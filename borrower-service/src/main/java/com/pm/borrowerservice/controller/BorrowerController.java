@@ -52,6 +52,8 @@ public class BorrowerController {
         return ResponseEntity.noContent().build();
     }
 
+
+
     // Loan Application
     @PostMapping("/{borrowerId}/loans")
     public ResponseEntity<LoanApplicationDto> applyForLoan(

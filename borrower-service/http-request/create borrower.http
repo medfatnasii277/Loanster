@@ -1,0 +1,22 @@
+
+POST http://localhost:4001/api/borrowers
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phoneNumber": "+1234567890",
+  "dateOfBirth": "1990-01-15",
+  "ssn": "123-45-6789",
+  "address": "123 Main Street",
+  "city": "New York",
+  "state": "NY",
+  "zipCode": "10001",
+  "annualIncome": 75000.0,
+  "employmentStatus": "EMPLOYED",
+  "employerName": "Tech Corp",
+  "employmentYears": 5
+}
+
+
