@@ -1,0 +1,71 @@
+### Create OFFICER User and Test Access
+
+### 1. Register a new OFFICER user
+POST http://localhost:4000/auth/register
+Content-Type: application/json
+
+{
+  "email": "officer@example.com",
+  "password": "password123",
+  "role": "OFFICER",
+  "fullName": "Loan Officer",
+  "dateOfBirth": "1985-06-15"
+}
+
+###
+
+### 2. Login with OFFICER credentials to get token
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "officer@example.com",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("officer_token", response.body.token);
+  client.log("OFFICER Token stored: " + response.body.token);
+%}
+
+###
+
+### 3. Test OFFICER token validation (should return 401 for /validate/borrower)
+GET http://localhost:4005/validate/borrower
+Authorization: Bearer {{officer_token}}
+
+###
+
+### 4. Test general token validation (should return 200)
+GET http://localhost:4005/validate
+Authorization: Bearer {{officer_token}}
+
+###
+
+### 5. Try to access borrower endpoints with OFFICER token (should return 401)
+GET http://localhost:4000/api/borrowers
+Authorization: Bearer {{officer_token}}
+
+###
+
+### 6. For comparison - Login as BORROWER user
+POST http://localhost:4000/auth/login
+Content-Type: application/json
+
+{
+  "email": "debug-user@test.com",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("borrower_token", response.body.token);
+  client.log("BORROWER Token stored: " + response.body.token);
+%}
+
+###
+
+### 7. Access borrower endpoints with BORROWER token (should return 200)
+GET http://localhost:4000/api/borrowers
+Authorization: Bearer {{borrower_token}}
+
+###

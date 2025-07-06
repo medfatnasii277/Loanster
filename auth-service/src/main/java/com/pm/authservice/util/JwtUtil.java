@@ -39,7 +39,6 @@ public class JwtUtil {
                 .compact();
     }
 
-
     public void validateToken(String token) {
             try {
                 Jwts.parser().verifyWith((SecretKey)  secretKey)
@@ -50,8 +49,26 @@ public class JwtUtil {
             }catch (JwtException e) {
                 throw new JwtException("Invalid JWT token.");
             }
+    }
 
+    public String extractRole(String token) {
+        try {
+            return Jwts.parser().verifyWith((SecretKey) secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get("role", String.class);
+        } catch (JwtException e) {
+            throw new JwtException("Invalid JWT token.");
+        }
+    }
 
-
+    public boolean validateTokenAndCheckRole(String token, String requiredRole) {
+        try {
+            String role = extractRole(token);
+            return requiredRole.equals(role);
+        } catch (JwtException e) {
+            return false;
+        }
     }
 }

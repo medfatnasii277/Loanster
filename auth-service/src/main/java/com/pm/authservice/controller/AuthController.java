@@ -68,4 +68,15 @@
                     : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        @Operation(summary = "Validate Token with BORROWER role")
+        @GetMapping("/validate/borrower")
+        public ResponseEntity<Void> validateBorrowerToken(@RequestHeader("Authorization") String token) {
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            return authService.validateTokenWithRole(token.substring(7), "BORROWER")
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
     }

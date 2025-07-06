@@ -1,7 +1,28 @@
 
-DELETE http://localhost:4001/api/borrowers/1
+### Delete Borrower through API Gateway
+# First, login to get a token, then delete a borrower
 
+### Login to get token
+POST http://localhost:4000/auth/login
+Content-Type: application/json
 
+{
+  "email": "debug-user@test.com",
+  "password": "password123"
+}
+
+> {%
+    client.global.set("token", response.body.token);
+    client.log("Token stored: " + response.body.token);
+%}
+
+###
+
+### Delete borrower by ID with authentication
+DELETE http://localhost:4000/api/borrowers/1
+Authorization: Bearer {{token}}
+
+###
 
 
 

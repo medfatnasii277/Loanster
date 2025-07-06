@@ -41,6 +41,10 @@ public class AuthService {
         }
     }
 
+    public boolean validateTokenWithRole(String token, String requiredRole) {
+        return jwtUtil.validateTokenAndCheckRole(token, requiredRole);
+    }
+
     public Optional<User> register(RegisterRequestDTO registerRequestDTO) {
         // Check if user already exists
         if (userService.existsByEmail(registerRequestDTO.getEmail())) {

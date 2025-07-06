@@ -1,0 +1,2 @@
+GET http://localhost:4001/api/borrowers/2/loans/1
+Authorization: Bearer {{token}}

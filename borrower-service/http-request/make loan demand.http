@@ -1,0 +1,17 @@
+
+POST http://localhost:4001/api/borrowers/2/loans
+Content-Type: application/json
+
+
+
+{
+  "loanType": "PERSONAL",
+  "loanAmount": 25000.00,
+  "loanTermMonths": 36,
+  "interestRate": 8.5,
+  "purpose": "Home renovation",
+  "notes": "Planning to renovate kitchen and bathroom"
+}
+
+
+
