@@ -6,8 +6,12 @@ import com.pm.borrowerservice.entity.LoanApplication;
 import com.pm.borrowerservice.repository.BorrowerRepository;
 import com.pm.borrowerservice.repository.DocumentRepository;
 import com.pm.borrowerservice.repository.LoanApplicationRepository;
+import com.pm.borrowerservice.service.KafkaEventProducerService;
+import com.pm.borrowerservice.util.EventMapper;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,14 +25,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DocumentService {
     private final DocumentRepository documentRepository;
     private final BorrowerRepository borrowerRepository;
     private final LoanApplicationRepository loanApplicationRepository;
+    private final KafkaEventProducerService kafkaEventProducerService;
+    private final EventMapper eventMapper;
 
     @Value("${app.file.upload.path}")
     private String uploadPath;
@@ -49,32 +55,51 @@ public class DocumentService {
 
     @Transactional
     public Document uploadDocument(Long borrowerId, MultipartFile file, String documentType, String description, Long loanApplicationId) throws IOException {
-        Borrower borrower = borrowerRepository.findById(borrowerId)
-                .orElseThrow(() -> new EntityNotFoundException("Borrower not found"));
-        LoanApplication loanApplication = null;
-        if (loanApplicationId != null) {
-            loanApplication = loanApplicationRepository.findById(loanApplicationId)
-                    .orElseThrow(() -> new EntityNotFoundException("Loan application not found"));
+        try {
+            log.info("Uploading document for borrower ID: {} with type: {}", borrowerId, documentType);
+            
+            Borrower borrower = borrowerRepository.findById(borrowerId)
+                    .orElseThrow(() -> new EntityNotFoundException("Borrower not found"));
+            
+            LoanApplication loanApplication = null;
+            if (loanApplicationId != null) {
+                loanApplication = loanApplicationRepository.findById(loanApplicationId)
+                        .orElseThrow(() -> new EntityNotFoundException("Loan application not found"));
+            }
+            
+            validateFile(file);
+            
+            String ext = FilenameUtils.getExtension(file.getOriginalFilename());
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path dir = Paths.get(uploadPath, String.valueOf(borrowerId));
+            Files.createDirectories(dir);
+            Path filePath = dir.resolve(fileName);
+            file.transferTo(filePath);
+            
+            Document document = Document.builder()
+                    .borrower(borrower)
+                    .loanApplication(loanApplication)
+                    .documentName(file.getOriginalFilename())
+                    .documentType(documentType)
+                    .filePath(filePath.toString())
+                    .fileName(fileName)
+                    .fileSize(file.getSize())
+                    .contentType(file.getContentType())
+                    .description(description)
+                    .build();
+            
+            document = documentRepository.save(document);
+            
+            // Publish Kafka event for document upload
+            kafkaEventProducerService.publishDocumentUploadEvent(eventMapper.toDocumentUploadEvent(document));
+            
+            log.info("Successfully uploaded document with ID: {} and published event", document.getId());
+            
+            return document;
+        } catch (Exception e) {
+            log.error("Error uploading document for borrower ID: {}", borrowerId, e);
+            throw e;
         }
-        validateFile(file);
-        String ext = FilenameUtils.getExtension(file.getOriginalFilename());
-        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-        Path dir = Paths.get(uploadPath, String.valueOf(borrowerId));
-        Files.createDirectories(dir);
-        Path filePath = dir.resolve(fileName);
-        file.transferTo(filePath);
-        Document document = Document.builder()
-                .borrower(borrower)
-                .loanApplication(loanApplication)
-                .documentName(file.getOriginalFilename())
-                .documentType(documentType)
-                .filePath(filePath.toString())
-                .fileName(fileName)
-                .fileSize(file.getSize())
-                .contentType(file.getContentType())
-                .description(description)
-                .build();
-        return documentRepository.save(document);
     }
 
     @Transactional

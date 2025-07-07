@@ -5,8 +5,11 @@ import com.pm.borrowerservice.dto.CreateBorrowerRequest;
 import com.pm.borrowerservice.entity.Borrower;
 import com.pm.borrowerservice.mapper.BorrowerMapper;
 import com.pm.borrowerservice.repository.BorrowerRepository;
+import com.pm.borrowerservice.util.EventMapper;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,14 +19,34 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BorrowerService {
     private final BorrowerRepository borrowerRepository;
     private final BorrowerMapper borrowerMapper;
+    private final KafkaEventProducerService kafkaEventProducerService;
+    private final EventMapper eventMapper;
 
+
+    @Transactional
     public BorrowerDto createBorrower(CreateBorrowerRequest request) {
-        Borrower borrower = borrowerMapper.toEntity(request);
-        borrower = borrowerRepository.save(borrower);
-        return borrowerMapper.toDto(borrower);
+        try {
+            log.info("Creating new borrower with email: {}", request.getEmail());
+            
+            Borrower borrower = borrowerMapper.toEntity(request);
+            borrower = borrowerRepository.save(borrower);
+            
+            // Publish borrower created event to Kafka
+            var borrowerCreatedEvent = eventMapper.toBorrowerCreatedEvent(borrower);
+            kafkaEventProducerService.publishBorrowerCreatedEvent(borrowerCreatedEvent);
+
+            
+            log.info("Successfully created borrower with ID: {} and published event", borrower.getId());
+            
+            return borrowerMapper.toDto(borrower);
+        } catch (Exception e) {
+            log.error("Error creating borrower with email: {}", request.getEmail(), e);
+            throw e;
+        }
     }
 
     public BorrowerDto getBorrower(Long id) {

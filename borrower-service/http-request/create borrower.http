@@ -24,13 +24,13 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "firstName": "John",
+  "firstName": "John2",
   "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "phoneNumber": "+1234567890",
+  "email": "john2.doe@example.com",
+  "phoneNumber": "+1234564890",
   "dateOfBirth": "1990-01-15",
-  "ssn": "123-45-6789",
-  "address": "123 Main Street",
+  "ssn": "173-45-6789",
+  "address": "13 Main Street",
   "city": "New York",
   "state": "NY",
   "zipCode": "10001",

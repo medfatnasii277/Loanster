@@ -1,0 +1,57 @@
+### Test Kafka Integration - Full Flow
+
+### 1. Create a Borrower (should trigger BorrowerCreatedEvent)
+POST http://localhost:4001/api/borrowers
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phoneNumber": "+1234567890",
+  "dateOfBirth": "1985-05-15",
+  "ssn": "123-45-6789",
+  "address": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "zipCode": "10001",
+  "annualIncome": 75000.00,
+  "employmentStatus": "EMPLOYED",
+  "employerName": "Tech Corp",
+  "employmentYears": 5
+}
+
+### 2. Create a Loan Application (should trigger LoanApplicationEvent)
+POST http://localhost:4001/api/borrowers/1/loan-applications
+Content-Type: application/json
+
+{
+  "loanType": "PERSONAL",
+  "loanAmount": 25000.00,
+  "loanTermMonths": 60,
+  "interestRate": 7.5,
+  "purpose": "Home improvement"
+}
+
+### 3. Upload a Document (should trigger DocumentUploadEvent)
+POST http://localhost:4001/api/borrowers/1/documents
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.pdf"
+Content-Type: application/pdf
+
+%PDF-1.4 Test document content
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="documentType"
+
+INCOME_STATEMENT
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Test document for loan application
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="loanApplicationId"
+
+1
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

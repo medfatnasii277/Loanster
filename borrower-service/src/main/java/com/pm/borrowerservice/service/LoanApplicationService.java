@@ -7,8 +7,11 @@ import com.pm.borrowerservice.entity.LoanApplicationStatus;
 import com.pm.borrowerservice.mapper.LoanApplicationMapper;
 import com.pm.borrowerservice.repository.BorrowerRepository;
 import com.pm.borrowerservice.repository.LoanApplicationRepository;
+import com.pm.borrowerservice.util.EventMapper;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,31 +21,53 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LoanApplicationService {
     private final LoanApplicationRepository loanApplicationRepository;
     private final BorrowerRepository borrowerRepository;
     private final LoanApplicationMapper loanApplicationMapper;
     private final LoanCalculatorService loanCalculatorService;
+    private final KafkaEventProducerService kafkaEventProducerService;
+    private final EventMapper eventMapper;
+
 
     @Transactional
     public LoanApplicationDto applyForLoan(Long borrowerId, LoanApplicationDto dto) {
-        Borrower borrower = borrowerRepository.findById(borrowerId)
-                .orElseThrow(() -> new EntityNotFoundException("Borrower not found"));
-        LoanApplication loanApplication = loanApplicationMapper.toEntity(dto);
-        loanApplication.setBorrower(borrower);
-        // Calculate monthly and total payment
-        BigDecimal monthly = loanCalculatorService.calculateMonthlyPayment(
-                loanApplication.getLoanAmount(),
-                loanApplication.getInterestRate(),
-                loanApplication.getLoanTermMonths()
-        );
-        loanApplication.setMonthlyPayment(monthly);
-        loanApplication.setTotalPayment(
-                loanCalculatorService.calculateTotalPayment(monthly, loanApplication.getLoanTermMonths())
-        );
-        loanApplication.setStatus(LoanApplicationStatus.PENDING);
-        loanApplication = loanApplicationRepository.save(loanApplication);
-        return loanApplicationMapper.toDto(loanApplication);
+        try {
+            log.info("Processing loan application for borrower ID: {} with amount: {}", 
+                    borrowerId, dto.getLoanAmount());
+            
+            Borrower borrower = borrowerRepository.findById(borrowerId)
+                    .orElseThrow(() -> new EntityNotFoundException("Borrower not found"));
+            
+            LoanApplication loanApplication = loanApplicationMapper.toEntity(dto);
+            loanApplication.setBorrower(borrower);
+            
+            // Calculate monthly and total payment
+            BigDecimal monthly = loanCalculatorService.calculateMonthlyPayment(
+                    loanApplication.getLoanAmount(),
+                    loanApplication.getInterestRate(),
+                    loanApplication.getLoanTermMonths()
+            );
+            loanApplication.setMonthlyPayment(monthly);
+            loanApplication.setTotalPayment(
+                    loanCalculatorService.calculateTotalPayment(monthly, loanApplication.getLoanTermMonths())
+            );
+            loanApplication.setStatus(LoanApplicationStatus.PENDING);
+            loanApplication = loanApplicationRepository.save(loanApplication);
+            
+            // Publish loan application event to Kafka
+            var loanApplicationEvent = eventMapper.toLoanApplicationEvent(loanApplication);
+            kafkaEventProducerService.publishLoanApplicationEvent(loanApplicationEvent);
+
+            
+            log.info("Successfully created loan application with ID: {} and published event", loanApplication.getId());
+            
+            return loanApplicationMapper.toDto(loanApplication);
+        } catch (Exception e) {
+            log.error("Error processing loan application for borrower ID: {}", borrowerId, e);
+            throw e;
+        }
     }
 
     public LoanApplicationDto getLoanApplication(Long borrowerId, Long applicationId) {
