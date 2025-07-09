@@ -19,7 +19,7 @@ Content-Type: application/json
 ###
 
 ### Delete borrower by ID with authentication
-DELETE http://localhost:4000/api/borrowers/1
+DELETE http://localhost:4000/api/borrowers/
 Authorization: Bearer {{token}}
 
 ###
