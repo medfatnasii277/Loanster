@@ -44,6 +44,10 @@ public class Document {
     @Column(name = "content_type", nullable = false)
     private String contentType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private DocumentStatus status;
+
     @Column(name = "uploaded_at_source", nullable = false)
     private LocalDateTime uploadedAtSource;
 

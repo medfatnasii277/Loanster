@@ -1,8 +1,12 @@
 package com.pm.officerservice.service;
 
 import com.pm.borrowerservice.events.DocumentUploadEvent;
+import com.pm.officerservice.dto.DocumentResponse;
+import com.pm.officerservice.dto.DocumentStatusUpdateRequest;
+import com.pm.officerservice.events.DocumentStatusUpdateEvent;
 import com.pm.officerservice.model.Borrower;
 import com.pm.officerservice.model.Document;
+import com.pm.officerservice.model.DocumentStatus;
 import com.pm.officerservice.model.LoanApplication;
 import com.pm.officerservice.repository.BorrowerRepository;
 import com.pm.officerservice.repository.DocumentRepository;
@@ -14,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +30,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final BorrowerRepository borrowerRepository;
     private final LoanApplicationRepository loanApplicationRepository;
+    private final KafkaEventProducerService kafkaEventProducerService;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Transactional
@@ -70,6 +78,91 @@ public class DocumentService {
             log.error("Failed to process document upload event for documentId: {}", event.getDocumentId(), e);
             throw e;
         }
+    }
+
+    @Transactional
+    public void updateDocumentStatus(Long documentId, DocumentStatusUpdateRequest request) {
+        try {
+            log.info("Updating document status for document ID: {} to status: {}", documentId, request.getNewStatus());
+
+            Document document = documentRepository.findById(documentId)
+                    .orElseThrow(() -> new RuntimeException("Document not found with ID: " + documentId));
+
+            String oldStatus = document.getStatus() != null ? document.getStatus().name() : "PENDING";
+            String newStatus = request.getNewStatus().name();
+
+            // Update the document status
+            document.setStatus(request.getNewStatus());
+            documentRepository.save(document);
+
+            // Create and publish status update event
+            DocumentStatusUpdateEvent.Builder eventBuilder = DocumentStatusUpdateEvent.newBuilder()
+                    .setDocumentId(documentId)
+                    .setBorrowerId(document.getBorrower().getBorrowerId())
+                    .setOldStatus(oldStatus)
+                    .setNewStatus(newStatus)
+                    .setUpdatedBy(request.getUpdatedBy())
+                    .setUpdatedAt(LocalDateTime.now().format(FORMATTER))
+                    .setEventId(kafkaEventProducerService.generateEventId())
+                    .setEventTimestamp(LocalDateTime.now().format(FORMATTER));
+
+            // Add loan application ID if associated
+            if (document.getLoanApplication() != null) {
+                eventBuilder.setLoanApplicationId(document.getLoanApplication().getApplicationId());
+            }
+
+            // Add rejection reason if provided and status is REJECTED
+            if (request.getNewStatus() == DocumentStatus.REJECTED && request.getRejectionReason() != null) {
+                eventBuilder.setRejectionReason(request.getRejectionReason());
+            }
+
+            DocumentStatusUpdateEvent event = eventBuilder.build();
+            kafkaEventProducerService.publishDocumentStatusUpdateEvent(event);
+
+            log.info("Successfully updated document status for document ID: {} from {} to {}", 
+                    documentId, oldStatus, newStatus);
+
+        } catch (Exception e) {
+            log.error("Failed to update document status for document ID: {}", documentId, e);
+            throw e;
+        }
+    }
+
+    public List<DocumentResponse> getAllDocuments() {
+        return documentRepository.findAll()
+                .stream()
+                .map(DocumentResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<DocumentResponse> getDocumentById(Long documentId) {
+        return documentRepository.findById(documentId)
+                .map(DocumentResponse::fromEntity);
+    }
+
+    public List<DocumentResponse> getDocumentsByStatus(DocumentStatus status) {
+        return documentRepository.findByStatus(status)
+                .stream()
+                .map(DocumentResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public List<DocumentResponse> getDocumentsByBorrowerId(Long borrowerId) {
+        return documentRepository.findByBorrowerBorrowerId(borrowerId)
+                .stream()
+                .map(DocumentResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public List<DocumentResponse> getDocumentsByLoanApplicationId(Long applicationId) {
+        return documentRepository.findByLoanApplicationApplicationId(applicationId)
+                .stream()
+                .map(DocumentResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public boolean existsById(Long documentId) {
+        return documentRepository.existsById(documentId);
     }
 
     private LocalDateTime parseTimestamp(String timestamp) {

@@ -24,12 +24,12 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "firstName": "Joln05",
+  "firstName": "Jol7n05",
   "lastName": "Doe",
-  "email": "lohon5.doe@example.com",
-  "phoneNumber": "+1449564690",
+  "email": "loh7on5.doe@example.com",
+  "phoneNumber": "+6649564690",
   "dateOfBirth": "1990-01-15",
-  "ssn": "203-55-6472",
+  "ssn": "203-66-6072",
   "address": "13 Main Street",
   "city": "New York",
   "state": "NY",
