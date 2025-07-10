@@ -8,28 +8,47 @@ spring:
         webflux:
           routes:
             - id: borrower-service-route
-              uri: http://loan-borrower-service:4001
+              uri: http://localhost:4001
               predicates:
                 - Path=/api/borrowers/**
               filters:
                 - JwtValidation
 
+            - id: officer-admin-route
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/admin/**
+              filters:
+                - OfficerValidation
+
+            - id: officer-health-route
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/health/**
+
             - id: api-docs-borrower-route
-              uri: http://loan-borrower-service:4001
+              uri: http://localhost:4001
               predicates:
                 - Path=/api-docs/borrower
               filters:
                 - RewritePath=/api-docs/borrower,/v3/api-docs
 
             - id: api-auth-service-route
-              uri: http://loan-auth-service:4005
+              uri: http://localhost:4005
               predicates:
                 - Path=/auth/**
               filters:
                 - StripPrefix=1
 
+            - id: api-auth-service-route-alt
+              uri: http://localhost:4005
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - StripPrefix=2
+
             - id: api-docs-auth-route
-              uri: http://loan-auth-service:4005
+              uri: http://localhost:4005
               predicates:
                 - Path=/api-docs/auth
               filters:
@@ -37,4 +56,4 @@ spring:
 
 auth:
   service:
-    url: http://loan-auth-service:4005
+    url: http://localhost:4005

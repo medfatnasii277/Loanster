@@ -21,7 +21,7 @@ Content-Type: application/json
 }
 
 ### Register new user (OFFICER)
-POST http://localhost:4005/api/auth/register
+POST http://localhost:4000/api/auth/register
 Content-Type: application/json
 
 {
@@ -269,6 +269,112 @@ Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
 ### Get available document statuses
 GET http://localhost:8083/api/admin/status/document-statuses
 Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### =============================================================================
+### 3B. ADMIN ENDPOINTS VIA API GATEWAY (Port 4000) - OFFICER ROLE REQUIRED
+### =============================================================================
+
+### Get all loan applications via API Gateway
+GET http://localhost:4000/api/admin/loans
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Get specific loan application via API Gateway
+GET http://localhost:4000/api/admin/loans/1
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Get loan applications by status via API Gateway
+GET http://localhost:4000/api/admin/loans/status/PENDING
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Update loan application status via API Gateway (UNDER_REVIEW)
+PUT http://localhost:4000/api/admin/loans/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+{
+  "newStatus": "UNDER_REVIEW",
+  "updatedBy": "officer.smith"
+}
+
+### Update loan application status via API Gateway (APPROVED)
+PUT http://localhost:4000/api/admin/loans/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+{
+  "newStatus": "APPROVED",
+  "updatedBy": "officer.smith"
+}
+
+### Update loan application status via API Gateway (REJECTED)
+PUT http://localhost:4000/api/admin/loans/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+{
+  "newStatus": "REJECTED",
+  "rejectionReason": "Insufficient credit score",
+  "updatedBy": "officer.smith"
+}
+
+### Get all documents via API Gateway
+GET http://localhost:4000/api/admin/documents
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Get specific document via API Gateway
+GET http://localhost:4000/api/admin/documents/1
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Get documents by status via API Gateway
+GET http://localhost:4000/api/admin/documents/status/PENDING
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Get documents for specific loan application via API Gateway
+GET http://localhost:4000/api/admin/loans/1/documents
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Update document status via API Gateway (UNDER_REVIEW)
+PUT http://localhost:4000/api/admin/documents/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+{
+  "newStatus": "UNDER_REVIEW",
+  "updatedBy": "officer.smith"
+}
+
+### Update document status via API Gateway (APPROVED)
+PUT http://localhost:4000/api/admin/documents/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+{
+  "newStatus": "APPROVED",
+  "updatedBy": "officer.smith"
+}
+
+### Update document status via API Gateway (REJECTED)
+PUT http://localhost:4000/api/admin/documents/1/status
+Content-Type: application/json
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+{
+  "newStatus": "REJECTED",
+  "rejectionReason": "Document unclear",
+  "updatedBy": "officer.smith"
+}
+
+### Get all loan statuses via API Gateway
+GET http://localhost:4000/api/admin/status/loan-statuses
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Get all document statuses via API Gateway
+GET http://localhost:4000/api/admin/status/document-statuses
+Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+
+### Test unauthorized access (should fail with 403 Forbidden)
+GET http://localhost:4000/api/admin/loans
+Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
 
 ### =============================================================================
 ### 4. API GATEWAY TESTS (Port 4000)

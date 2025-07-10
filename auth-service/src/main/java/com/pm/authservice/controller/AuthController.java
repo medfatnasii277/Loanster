@@ -1,4 +1,4 @@
-    package com.pm.authservice.controller;
+package com.pm.authservice.controller;
 
 
     import com.pm.authservice.dto.LoginRequestDTO;
@@ -75,6 +75,17 @@
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             return authService.validateTokenWithRole(token.substring(7), "BORROWER")
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        @Operation(summary = "Validate Token with OFFICER role")
+        @GetMapping("/validate/officer")
+        public ResponseEntity<Void> validateOfficerToken(@RequestHeader("Authorization") String token) {
+            if (token == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            return authService.validateTokenWithRole(token.substring(7), "OFFICER")
                     ? ResponseEntity.ok().build()
                     : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
