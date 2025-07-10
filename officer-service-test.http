@@ -1,8 +1,0 @@
-### Officer Service Health Check
-GET http://localhost:5001/api/health
-
-### Check Actuator Health
-GET http://localhost:5001/actuator/health
-
-### Check Application Info
-GET http://localhost:5001/actuator/info
