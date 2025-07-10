@@ -1,10 +1,10 @@
 ### GET request to example server
-PUT localhost:4002/api/admin/loans/2/status
+PUT localhost:4002/api/admin/loans/3/status
 Content-Type: application/json
 
 
 {
-  "newStatus": "CANCELLED",
+  "newStatus": "REJECTED",
   "rejectionReason": "Optional reason for rejection",
   "updatedBy": "admin_user_1"
 }

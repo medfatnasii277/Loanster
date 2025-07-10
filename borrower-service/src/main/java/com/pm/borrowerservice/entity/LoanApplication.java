@@ -78,6 +78,12 @@ public class LoanApplication {
     @Column(name = "rejection_reason", columnDefinition = "TEXT")
     private String rejectionReason;
 
+    @Column(name = "status_updated_by")
+    private String statusUpdatedBy; // Officer/User ID who last updated the status
+    
+    @Column(name = "status_updated_at")
+    private LocalDateTime statusUpdatedAt; // When the status was last updated
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
