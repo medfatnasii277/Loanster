@@ -1,4 +1,4 @@
-# LoanApp - Enterprise Loan Management System
+# Loanster -  Loan Management System
 
 [![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
