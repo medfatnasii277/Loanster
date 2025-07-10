@@ -1,5 +1,14 @@
 package com.pm.officerservice.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.pm.borrowerservice.events.DocumentUploadEvent;
 import com.pm.officerservice.dto.DocumentResponse;
 import com.pm.officerservice.dto.DocumentStatusUpdateRequest;
@@ -11,16 +20,9 @@ import com.pm.officerservice.model.LoanApplication;
 import com.pm.officerservice.repository.BorrowerRepository;
 import com.pm.officerservice.repository.DocumentRepository;
 import com.pm.officerservice.repository.LoanApplicationRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -91,8 +93,10 @@ public class DocumentService {
             String oldStatus = document.getStatus() != null ? document.getStatus().name() : "PENDING";
             String newStatus = request.getNewStatus().name();
 
-            // Update the document status
+            // Update the document status (overwrite, not concatenate)
             document.setStatus(request.getNewStatus());
+            document.setStatusUpdatedBy(request.getUpdatedBy());
+            document.setStatusUpdatedAt(LocalDateTime.now());
             documentRepository.save(document);
 
             // Create and publish status update event

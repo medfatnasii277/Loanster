@@ -1,14 +1,15 @@
 package com.pm.officerservice.dto;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import com.pm.officerservice.model.LoanApplication;
 import com.pm.officerservice.model.LoanApplicationStatus;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -25,6 +26,8 @@ public class LoanApplicationResponse {
     private BigDecimal interestRate;
     private BigDecimal monthlyPayment;
     private LoanApplicationStatus status;
+    private String statusUpdatedBy; // Officer/User ID who last updated the status
+    private LocalDateTime statusUpdatedAt; // When the status was last updated
     private LocalDateTime appliedAtSource;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -40,6 +43,8 @@ public class LoanApplicationResponse {
                 .interestRate(entity.getInterestRate())
                 .monthlyPayment(entity.getMonthlyPayment())
                 .status(LoanApplicationStatus.valueOf(entity.getStatus()))
+                .statusUpdatedBy(entity.getStatusUpdatedBy())
+                .statusUpdatedAt(entity.getStatusUpdatedAt())
                 .appliedAtSource(entity.getAppliedAtSource())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

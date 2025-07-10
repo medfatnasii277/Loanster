@@ -1,14 +1,23 @@
 package com.pm.officerservice.model;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "documents")
@@ -47,6 +56,12 @@ public class Document {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private DocumentStatus status;
+    
+    @Column(name = "status_updated_by")
+    private String statusUpdatedBy; // Officer/User ID who last updated the status
+    
+    @Column(name = "status_updated_at")
+    private LocalDateTime statusUpdatedAt; // When the status was last updated
 
     @Column(name = "uploaded_at_source", nullable = false)
     private LocalDateTime uploadedAtSource;

@@ -1,7 +1,10 @@
 package com.pm.officerservice.dto;
 
 import com.pm.officerservice.model.LoanApplicationStatus;
+
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +19,10 @@ public class LoanStatusUpdateRequest {
     @NotNull(message = "New status is required")
     private LoanApplicationStatus newStatus;
     
+    @Size(max = 500, message = "Rejection reason cannot exceed 500 characters")
     private String rejectionReason; // Optional, only for rejected loans
     
-    @NotNull(message = "Updated by is required")
-    private String updatedBy;
+    @NotBlank(message = "Updated by is required")
+    @Size(max = 100, message = "Updated by cannot exceed 100 characters")
+    private String updatedBy; // Officer/User ID who is making this change
 } 

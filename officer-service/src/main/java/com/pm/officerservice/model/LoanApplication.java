@@ -1,16 +1,25 @@
 package com.pm.officerservice.model;
 
-import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "loan_applications")
@@ -44,6 +53,12 @@ public class LoanApplication {
 
     @Column(name = "status", nullable = false)
     private String status;
+    
+    @Column(name = "status_updated_by")
+    private String statusUpdatedBy; // Officer/User ID who last updated the status
+    
+    @Column(name = "status_updated_at")
+    private LocalDateTime statusUpdatedAt; // When the status was last updated
 
     @Column(name = "applied_at_source", nullable = false)
     private LocalDateTime appliedAtSource;

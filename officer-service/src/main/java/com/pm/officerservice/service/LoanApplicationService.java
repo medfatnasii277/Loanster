@@ -1,5 +1,15 @@
 package com.pm.officerservice.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.pm.borrowerservice.events.LoanApplicationEvent;
 import com.pm.officerservice.dto.LoanApplicationResponse;
 import com.pm.officerservice.dto.LoanStatusUpdateRequest;
@@ -9,17 +19,9 @@ import com.pm.officerservice.model.LoanApplication;
 import com.pm.officerservice.model.LoanApplicationStatus;
 import com.pm.officerservice.repository.BorrowerRepository;
 import com.pm.officerservice.repository.LoanApplicationRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,8 +84,10 @@ public class LoanApplicationService {
             String oldStatus = loanApplication.getStatus();
             String newStatus = request.getNewStatus().name();
 
-            // Update the loan application status
+            // Update the loan application status (overwrite, not concatenate)
             loanApplication.setStatus(newStatus);
+            loanApplication.setStatusUpdatedBy(request.getUpdatedBy());
+            loanApplication.setStatusUpdatedAt(LocalDateTime.now());
             loanApplicationRepository.save(loanApplication);
 
             // Create and publish status update event
