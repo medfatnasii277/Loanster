@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/admin")
+
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Admin Operations", description = "Admin endpoints for managing loan applications and documents")

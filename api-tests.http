@@ -5,66 +5,97 @@
 ### Services: Auth Service, Borrower Service, Officer Service, API Gateway
 ### =============================================================================
 
+@baseUrl = http://localhost:4000
+@authUrl = http://localhost:4005
+@borrowerUrl = http://localhost:4001
+@officerUrl = http://localhost:8083
+
 ### =============================================================================
-### 1. AUTHENTICATION SERVICE TESTS (Port 4005)
+### 1. AUTHENTICATION SERVICE TESTS
 ### =============================================================================
 
-### Register new user (BORROWER)
-POST http://localhost:4005/api/auth/register
+### Register new user (BORROWER) - Via API Gateway
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "username": "john.doe",
   "email": "john.doe@example.com",
   "password": "SecurePassword123!",
-  "role": "BORROWER"
+  "role": "BORROWER",
+  "fullName": "John Doe",
+  "dateOfBirth": "1990-01-15"
 }
 
-### Register new user (OFFICER)
-POST http://localhost:4000/api/auth/register
+> {%
+  if (response.status === 201) {
+    client.global.set("borrowerId", response.body.userId);
+  }
+%}
+
+### Register new user (OFFICER) - Via API Gateway
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "username": "officer.smith",
   "email": "officer.smith@company.com",
   "password": "OfficerPass123!",
-  "role": "OFFICER"
+  "role": "OFFICER",
+  "fullName": "Officer Smith",
+  "dateOfBirth": "1985-05-20"
 }
 
-### Login as borrower
-POST http://localhost:4005/api/auth/login
+> {%
+  if (response.status === 201) {
+    client.global.set("officerId", response.body.userId);
+  }
+%}
+
+### Login as borrower - Via API Gateway
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "john.doe",
+  "email": "john.doe@example.com",
   "password": "SecurePassword123!"
 }
 
-### Login as officer
-POST http://localhost:4005/api/auth/login
+> {%
+  if (response.status === 200) {
+    client.global.set("borrowerToken", response.body.token);
+  }
+%}
+
+### Login as officer - Via API Gateway
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "officer.smith",
+  "email": "officer.smith@company.com",
   "password": "OfficerPass123!"
 }
 
-### Validate borrower token
-POST http://localhost:4005/api/auth/validate/borrower
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+> {%
+  if (response.status === 200) {
+    client.global.set("officerToken", response.body.token);
+  }
+%}
 
-### Validate officer token
-POST http://localhost:4005/api/auth/validate/officer
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+### Validate borrower token - Via API Gateway
+GET {{baseUrl}}/auth/validate/borrower
+Authorization: Bearer {{borrowerToken}}
+
+### Validate officer token - Via API Gateway
+GET {{baseUrl}}/auth/validate/officer
+Authorization: Bearer {{officerToken}}
 
 ### =============================================================================
-### 2. BORROWER SERVICE TESTS (Port 4001)
+### 2. BORROWER SERVICE TESTS - Via API Gateway
 ### =============================================================================
 
 ### Create borrower profile
-POST http://localhost:4001/api/borrowers
+POST {{baseUrl}}/api/borrowers
 Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+Authorization: Bearer {{borrowerToken}}
 
 {
   "firstName": "John",
@@ -73,54 +104,30 @@ Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
   "phoneNumber": "+1234567890",
   "dateOfBirth": "1990-01-15",
   "ssn": "123-45-6789",
-  "address": {
-    "street": "123 Main Street",
-    "city": "New York",
-    "state": "NY",
-    "zipCode": "10001"
-  },
-  "employmentDetails": {
-    "employer": "Tech Corp",
-    "position": "Software Engineer",
-    "annualIncome": 75000,
-    "employmentStartDate": "2020-01-01"
-  }
+  "address": "123 Main Street",
+  "city": "New York",
+  "state": "NY",
+  "zipCode": "10001",
+  "annualIncome": 75000.0,
+  "employmentStatus": "EMPLOYED",
+  "employerName": "Tech Corp",
+  "employmentYears": 3
 }
+
+> {%
+  if (response.status === 201) {
+    client.global.set("borrowerId", response.body.id);
+  }
+%}
 
 ### Get borrower profile
-GET http://localhost:4001/api/borrowers/1
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-### Update borrower profile
-PUT http://localhost:4001/api/borrowers/1
-Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@updated.com",
-  "phoneNumber": "+1234567890",
-  "dateOfBirth": "1990-01-15",
-  "ssn": "123-45-6789",
-  "address": {
-    "street": "456 Oak Avenue",
-    "city": "Boston",
-    "state": "MA",
-    "zipCode": "02101"
-  },
-  "employmentDetails": {
-    "employer": "New Tech Corp",
-    "position": "Senior Software Engineer",
-    "annualIncome": 85000,
-    "employmentStartDate": "2020-01-01"
-  }
-}
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}
+Authorization: Bearer {{borrowerToken}}
 
 ### Submit loan application
-POST http://localhost:4001/api/borrowers/1/loan-applications
+POST {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications
 Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+Authorization: Bearer {{borrowerToken}}
 
 {
   "loanType": "PERSONAL",
@@ -130,18 +137,24 @@ Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
   "purpose": "Home improvement"
 }
 
+> {%
+  if (response.status === 201) {
+    client.global.set("loanApplicationId", response.body.id);
+  }
+%}
+
 ### Get loan applications for borrower
-GET http://localhost:4001/api/borrowers/1/loan-applications
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications
+Authorization: Bearer {{borrowerToken}}
 
 ### Get specific loan application
-GET http://localhost:4001/api/borrowers/1/loan-applications/1
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications/{{loanApplicationId}}
+Authorization: Bearer {{borrowerToken}}
 
 ### Upload document
-POST http://localhost:4001/api/borrowers/1/documents
+POST {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
 Content-Type: multipart/form-data
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+Authorization: Bearer {{borrowerToken}}
 
 # Use form data with these fields:
 # file: [select a file]
@@ -150,17 +163,13 @@ Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
 # description: Driver's License
 
 ### Get documents for borrower
-GET http://localhost:4001/api/borrowers/1/documents
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-### Get specific document
-GET http://localhost:4001/api/borrowers/1/documents/1
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
+Authorization: Bearer {{borrowerToken}}
 
 ### Calculate loan payment
-POST http://localhost:4001/api/borrowers/calculate-loan
+POST {{baseUrl}}/api/borrowers/calculate-loan
 Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+Authorization: Bearer {{borrowerToken}}
 
 {
   "loanAmount": 25000,
@@ -169,25 +178,25 @@ Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
 }
 
 ### =============================================================================
-### 3. OFFICER SERVICE TESTS (Port 8083)
+### 3. ADMIN ENDPOINTS VIA API GATEWAY - OFFICER ROLE REQUIRED
 ### =============================================================================
 
 ### Get all loan applications (Officer view)
-GET http://localhost:8083/api/admin/loans
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+GET {{baseUrl}}/admin/loans
+Authorization: Bearer {{officerToken}}
 
 ### Get specific loan application (Officer view)
-GET http://localhost:8083/api/admin/loans/1
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+GET {{baseUrl}}/admin/loans/{{loanApplicationId}}
+Authorization: Bearer {{officerToken}}
 
 ### Get loan applications by status
-GET http://localhost:8083/api/admin/loans/status/PENDING
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+GET {{baseUrl}}/admin/loans/status/PENDING
+Authorization: Bearer {{officerToken}}
 
 ### Update loan application status (UNDER_REVIEW)
-PUT http://localhost:8083/api/admin/loans/1/status
+PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
 Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+Authorization: Bearer {{officerToken}}
 
 {
   "newStatus": "UNDER_REVIEW",
@@ -195,9 +204,9 @@ Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
 }
 
 ### Update loan application status (APPROVED)
-PUT http://localhost:8083/api/admin/loans/1/status
+PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
 Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+Authorization: Bearer {{officerToken}}
 
 {
   "newStatus": "APPROVED",
@@ -205,9 +214,9 @@ Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
 }
 
 ### Update loan application status (REJECTED with reason)
-PUT http://localhost:8083/api/admin/loans/1/status
+PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
 Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+Authorization: Bearer {{officerToken}}
 
 {
   "newStatus": "REJECTED",
@@ -216,25 +225,21 @@ Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
 }
 
 ### Get all documents (Officer view)
-GET http://localhost:8083/api/admin/documents
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get specific document (Officer view)
-GET http://localhost:8083/api/admin/documents/1
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+GET {{baseUrl}}/admin/documents
+Authorization: Bearer {{officerToken}}
 
 ### Get documents by status
-GET http://localhost:8083/api/admin/documents/status/PENDING
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+GET {{baseUrl}}/admin/documents/status/PENDING
+Authorization: Bearer {{officerToken}}
 
 ### Get documents for specific loan application
-GET http://localhost:8083/api/admin/loans/1/documents
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+GET {{baseUrl}}/admin/loans/{{loanApplicationId}}/documents
+Authorization: Bearer {{officerToken}}
 
 ### Update document status (UNDER_REVIEW)
-PUT http://localhost:8083/api/admin/documents/1/status
+PUT {{baseUrl}}/admin/documents/1/status
 Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+Authorization: Bearer {{officerToken}}
 
 {
   "newStatus": "UNDER_REVIEW",
@@ -242,19 +247,19 @@ Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
 }
 
 ### Update document status (APPROVED)
-PUT http://localhost:8083/api/admin/documents/1/status
+PUT {{baseUrl}}/admin/documents/1/status
 Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+Authorization: Bearer {{officerToken}}
 
 {
   "newStatus": "APPROVED",
   "updatedBy": "officer.smith"
 }
 
-### Update document status (REJECTED with reason)
-PUT http://localhost:8083/api/admin/documents/1/status
+### Update document status (REJECTED)
+PUT {{baseUrl}}/admin/documents/1/status
 Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+Authorization: Bearer {{officerToken}}
 
 {
   "newStatus": "REJECTED",
@@ -262,249 +267,53 @@ Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
   "updatedBy": "officer.smith"
 }
 
-### Get available loan statuses
-GET http://localhost:8083/api/admin/status/loan-statuses
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+### Get all loan statuses
+GET {{baseUrl}}/admin/status/loan-statuses
+Authorization: Bearer {{officerToken}}
 
-### Get available document statuses
-GET http://localhost:8083/api/admin/status/document-statuses
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### =============================================================================
-### 3B. ADMIN ENDPOINTS VIA API GATEWAY (Port 4000) - OFFICER ROLE REQUIRED
-### =============================================================================
-
-### Get all loan applications via API Gateway
-GET http://localhost:4000/api/admin/loans
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get specific loan application via API Gateway
-GET http://localhost:4000/api/admin/loans/1
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get loan applications by status via API Gateway
-GET http://localhost:4000/api/admin/loans/status/PENDING
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Update loan application status via API Gateway (UNDER_REVIEW)
-PUT http://localhost:4000/api/admin/loans/1/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "UNDER_REVIEW",
-  "updatedBy": "officer.smith"
-}
-
-### Update loan application status via API Gateway (APPROVED)
-PUT http://localhost:4000/api/admin/loans/1/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "APPROVED",
-  "updatedBy": "officer.smith"
-}
-
-### Update loan application status via API Gateway (REJECTED)
-PUT http://localhost:4000/api/admin/loans/1/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "REJECTED",
-  "rejectionReason": "Insufficient credit score",
-  "updatedBy": "officer.smith"
-}
-
-### Get all documents via API Gateway
-GET http://localhost:4000/api/admin/documents
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get specific document via API Gateway
-GET http://localhost:4000/api/admin/documents/1
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get documents by status via API Gateway
-GET http://localhost:4000/api/admin/documents/status/PENDING
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get documents for specific loan application via API Gateway
-GET http://localhost:4000/api/admin/loans/1/documents
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Update document status via API Gateway (UNDER_REVIEW)
-PUT http://localhost:4000/api/admin/documents/1/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "UNDER_REVIEW",
-  "updatedBy": "officer.smith"
-}
-
-### Update document status via API Gateway (APPROVED)
-PUT http://localhost:4000/api/admin/documents/1/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "APPROVED",
-  "updatedBy": "officer.smith"
-}
-
-### Update document status via API Gateway (REJECTED)
-PUT http://localhost:4000/api/admin/documents/1/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "REJECTED",
-  "rejectionReason": "Document unclear",
-  "updatedBy": "officer.smith"
-}
-
-### Get all loan statuses via API Gateway
-GET http://localhost:4000/api/admin/status/loan-statuses
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-### Get all document statuses via API Gateway
-GET http://localhost:4000/api/admin/status/document-statuses
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
+### Get all document statuses
+GET {{baseUrl}}/admin/status/document-statuses
+Authorization: Bearer {{officerToken}}
 
 ### Test unauthorized access (should fail with 403 Forbidden)
-GET http://localhost:4000/api/admin/loans
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
+GET {{baseUrl}}/admin/loans
+Authorization: Bearer {{borrowerToken}}
 
 ### =============================================================================
-### 4. API GATEWAY TESTS (Port 4000)
+### 4. KAFKA EVENT TESTING
 ### =============================================================================
-
-### Test API Gateway routing to borrower service
-GET http://localhost:4000/api/borrowers/1
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-### Test API Gateway authentication (should fail without token)
-GET http://localhost:4000/api/borrowers/1
-
-### Test API Gateway with invalid token (should fail)
-GET http://localhost:4000/api/borrowers/1
-Authorization: Bearer invalid_token_here
-
-### =============================================================================
-### 5. KAFKA EVENT TESTING
-### =============================================================================
-### These tests verify that events flow correctly between services
-
-### Step 1: Create test data in borrower service
-### (Use the borrower creation and loan application requests above)
-
-### Step 2: Update status in officer service
-### (Use the loan/document status update requests above)
-
-### Step 3: Verify status was updated in borrower service
-### (Check the loan application status in borrower service)
-
 ### Expected behavior:
 ### 1. Officer updates loan status → Event published to Kafka
 ### 2. Borrower service consumes event → Updates local status
-### 3. Only processes events for correct borrower (security)
-### 4. Status is overwritten, not concatenated
+### 3. Verify status change appears in borrower service
+
+### Step 1: Update loan status (use officer endpoint above)
+### Step 2: Check loan status in borrower service (use borrower endpoint above)
+### Step 3: Verify status was synchronized via Kafka events
 
 ### =============================================================================
-### 6. HEALTH CHECKS AND MONITORING
+### 5. HEALTH CHECKS
 ### =============================================================================
 
 ### Check API Gateway health
-GET http://localhost:4000/actuator/health
+GET {{baseUrl}}/actuator/health
 
-### Check Auth Service health
-GET http://localhost:4005/actuator/health
+### Check Auth Service health  
+GET {{authUrl}}/actuator/health
 
 ### Check Borrower Service health
-GET http://localhost:4001/actuator/health
+GET {{borrowerUrl}}/actuator/health
 
 ### Check Officer Service health
-GET http://localhost:8083/actuator/health
-
-### Get Borrower Service metrics
-GET http://localhost:4001/actuator/metrics
-
-### Get Borrower Service Swagger UI
-GET http://localhost:4001/swagger-ui.html
-
-### Get Officer Service Swagger UI
-GET http://localhost:8083/swagger-ui.html
+GET {{officerUrl}}/actuator/health
 
 ### =============================================================================
-### 7. ERROR TESTING
+### TESTING WORKFLOW
 ### =============================================================================
-
-### Test validation errors (missing required fields)
-POST http://localhost:4001/api/borrowers
-Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-{
-  "firstName": "",
-  "lastName": "",
-  "email": "invalid-email"
-}
-
-### Test unauthorized access (wrong role)
-GET http://localhost:8083/api/admin/loans
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-### Test not found errors
-GET http://localhost:4001/api/borrowers/999
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-### Test invalid loan amount
-POST http://localhost:4001/api/borrowers/1/loan-applications
-Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-{
-  "loanType": "PERSONAL",
-  "loanAmount": -1000,
-  "loanTermMonths": 36,
-  "interestRate": 6.5,
-  "purpose": "Invalid loan"
-}
-
-### =============================================================================
-### 8. PERFORMANCE TESTING EXAMPLES
-### =============================================================================
-
-### Concurrent loan applications (run multiple times simultaneously)
-POST http://localhost:4001/api/borrowers/1/loan-applications
-Content-Type: application/json
-Authorization: Bearer YOUR_BORROWER_TOKEN_HERE
-
-{
-  "loanType": "PERSONAL",
-  "loanAmount": 10000,
-  "loanTermMonths": 24,
-  "interestRate": 5.5,
-  "purpose": "Performance test loan {{$randomInt}}"
-}
-
-### Bulk status updates (test Kafka throughput)
-PUT http://localhost:8083/api/admin/loans/{{$randomInt}}/status
-Content-Type: application/json
-Authorization: Bearer YOUR_OFFICER_TOKEN_HERE
-
-{
-  "newStatus": "UNDER_REVIEW",
-  "updatedBy": "performance.test.officer"
-}
-
-### =============================================================================
-### NOTES:
-### =============================================================================
-### 1. Replace YOUR_BORROWER_TOKEN_HERE and YOUR_OFFICER_TOKEN_HERE with actual tokens
-### 2. Update IDs (like borrower ID, loan ID) based on your test data
-### 3. For file uploads, use your HTTP client's file upload feature
-### 4. Monitor logs in all services to verify event processing
-### 5. Use different borrower IDs to test multi-tenant functionality
+### 1. Run authentication tests first (register + login)
+### 2. Create borrower profile
+### 3. Submit loan application  
+### 4. Officer reviews and updates status
+### 5. Verify status synchronized via Kafka
+### 6. Test role-based access control
 ### =============================================================================
