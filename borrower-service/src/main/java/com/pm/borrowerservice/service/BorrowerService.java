@@ -32,6 +32,33 @@ public class BorrowerService {
         try {
             log.info("Creating new borrower with email: {}", request.getEmail());
             
+            // Set a default user ID if not provided (for testing purposes)
+            // In production, this would come from JWT token via controller
+            if (request.getUserId() == null) {
+                // You can modify this logic to extract user ID from authentication context
+                // For now, we'll use a default value for testing
+                Long defaultUserId = 1L; // This should be extracted from JWT token in production
+                
+                // Create a new request with the user ID
+                request = CreateBorrowerRequest.builder()
+                    .userId(defaultUserId)
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .dateOfBirth(request.getDateOfBirth())
+                    .ssn(request.getSsn())
+                    .address(request.getAddress())
+                    .city(request.getCity())
+                    .state(request.getState())
+                    .zipCode(request.getZipCode())
+                    .annualIncome(request.getAnnualIncome())
+                    .employmentStatus(request.getEmploymentStatus())
+                    .employerName(request.getEmployerName())
+                    .employmentYears(request.getEmploymentYears())
+                    .build();
+            }
+            
             Borrower borrower = borrowerMapper.toEntity(request);
             borrower = borrowerRepository.save(borrower);
             
@@ -72,5 +99,11 @@ public class BorrowerService {
 
     public Optional<Borrower> findBySsn(String ssn) {
         return borrowerRepository.findBySsn(ssn);
+    }
+
+    public BorrowerDto getBorrowerByUserId(Long userId) {
+        Borrower borrower = borrowerRepository.findByUserId(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Borrower not found for user ID: " + userId));
+        return borrowerMapper.toDto(borrower);
     }
 } 

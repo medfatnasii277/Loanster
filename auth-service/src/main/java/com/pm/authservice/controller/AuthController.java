@@ -1,13 +1,8 @@
 package com.pm.authservice.controller;
 
 
-    import com.pm.authservice.dto.LoginRequestDTO;
-    import com.pm.authservice.dto.LoginResponseDTO;
-    import com.pm.authservice.dto.RegisterRequestDTO;
-    import com.pm.authservice.dto.RegisterResponseDTO;
-    import com.pm.authservice.service.AuthService;
-    import io.swagger.v3.oas.annotations.Operation;
     import java.util.Optional;
+
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +10,14 @@ package com.pm.authservice.controller;
     import org.springframework.web.bind.annotation.RequestBody;
     import org.springframework.web.bind.annotation.RequestHeader;
     import org.springframework.web.bind.annotation.RestController;
+
+    import com.pm.authservice.dto.LoginRequestDTO;
+    import com.pm.authservice.dto.LoginResponseDTO;
+    import com.pm.authservice.dto.RegisterRequestDTO;
+    import com.pm.authservice.dto.RegisterResponseDTO;
+    import com.pm.authservice.service.AuthService;
+
+    import io.swagger.v3.oas.annotations.Operation;
 
     @RestController
     public class AuthController {
@@ -30,14 +33,13 @@ package com.pm.authservice.controller;
         public ResponseEntity<LoginResponseDTO> login(
                 @RequestBody LoginRequestDTO loginRequestDTO) {
 
-            Optional<String> tokenOptional = authService.authenticate(loginRequestDTO);
+            Optional<LoginResponseDTO> loginResponseOptional = authService.authenticate(loginRequestDTO);
 
-            if (tokenOptional.isEmpty()) {
+            if (loginResponseOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            String token = tokenOptional.get();
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(loginResponseOptional.get());
         }
 
         @Operation(summary = "Register new user")

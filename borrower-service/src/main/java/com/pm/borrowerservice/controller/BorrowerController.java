@@ -46,6 +46,11 @@ public class BorrowerController {
         return ResponseEntity.ok(borrowerService.getAllBorrowers());
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<BorrowerDto> getBorrowerByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(borrowerService.getBorrowerByUserId(userId));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBorrower(@PathVariable Long id) {
         borrowerService.deleteBorrower(id);

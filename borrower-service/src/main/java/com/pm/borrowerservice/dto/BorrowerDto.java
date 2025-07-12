@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class BorrowerDto {
 
     private Long id;
+    private Long userId;
     private String firstName;
     private String lastName;
     private String email;

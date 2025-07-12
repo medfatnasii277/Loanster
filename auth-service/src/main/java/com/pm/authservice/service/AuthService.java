@@ -1,6 +1,7 @@
 package com.pm.authservice.service;
 
 import com.pm.authservice.dto.LoginRequestDTO;
+import com.pm.authservice.dto.LoginResponseDTO;
 import com.pm.authservice.dto.RegisterRequestDTO;
 import com.pm.authservice.model.User;
 import com.pm.authservice.util.JwtUtil;
@@ -23,13 +24,20 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public Optional<String> authenticate(LoginRequestDTO loginRequestDTO) {
-        Optional<String> token = userService.findByEmail(loginRequestDTO.getEmail())
-                .filter(u -> passwordEncoder.matches(loginRequestDTO.getPassword(),
-                        u.getPassword()))
-                .map(u -> jwtUtil.generateToken(u.getEmail(), u.getRole().toString()));
-
-        return token;
+    public Optional<LoginResponseDTO> authenticate(LoginRequestDTO loginRequestDTO) {
+        return userService.findByEmail(loginRequestDTO.getEmail())
+                .filter(u -> passwordEncoder.matches(loginRequestDTO.getPassword(), u.getPassword()))
+                .map(user -> {
+                    String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+                    LoginResponseDTO.UserInfo userInfo = new LoginResponseDTO.UserInfo(
+                            user.getId(),
+                            user.getEmail(),
+                            user.getFullName(),
+                            user.getRole().toString(),
+                            user.getDateOfBirth()
+                    );
+                    return new LoginResponseDTO(token, userInfo);
+                });
     }
 
     public boolean validateToken(String token) {

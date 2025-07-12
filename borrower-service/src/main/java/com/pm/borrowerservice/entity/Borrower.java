@@ -24,6 +24,9 @@ public class Borrower {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "user_id", unique = true, nullable = false)
+    private Long userId; // Links to auth service user ID
+
     @NotBlank(message = "First name is required")
     @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
     @Column(name = "first_name", nullable = false)

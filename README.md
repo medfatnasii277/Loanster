@@ -1,11 +1,22 @@
-# Loanster -  Loan Management System
+# 🏦 LoanApp - Complete Full-Stack Loan Management System
 
-[![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-2.8+-orange.svg)](https://kafka.apache.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-20+-blue.svg)](https://www.docker.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+A professional enterprise-level loan management system with microservices architecture and modern React frontend.
+
+## 🌟 System Overview
+
+### Architecture
+```
+Frontend (React)     ←→     API Gateway     ←→     Microservices
+  Port 3000              Port 4000              Auth (4005)
+                                               Borrower (4001)
+                                               Officer (8083)
+```
+
+### CORS Configuration
+**✅ CENTRALIZED CORS**: CORS is configured only in the API Gateway to avoid duplicate headers.
+- **API Gateway**: Handles all CORS for frontend requests
+- **Individual Services**: No CORS configuration (clean microservices)
+- **Frontend Origins**: `http://localhost:3000` and `http://127.0.0.1:3000`
 
 ## 📋 Table of Contents
 
