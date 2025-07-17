@@ -10,6 +10,8 @@ import com.pm.borrowerservice.util.EventMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class BorrowerService {
     private final BorrowerMapper borrowerMapper;
     private final KafkaEventProducerService kafkaEventProducerService;
     private final EventMapper eventMapper;
+    private static final Logger logger = LoggerFactory.getLogger(BorrowerService.class);
 
 
     @Transactional
@@ -83,6 +86,8 @@ public class BorrowerService {
     }
 
     public List<BorrowerDto> getAllBorrowers() {
+        logger.info("Get All borrower");
+
         return borrowerRepository.findAll().stream()
                 .map(borrowerMapper::toDto)
                 .collect(Collectors.toList());

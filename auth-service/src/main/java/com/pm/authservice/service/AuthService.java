@@ -7,6 +7,9 @@ import com.pm.authservice.model.User;
 import com.pm.authservice.util.JwtUtil;
 import io.jsonwebtoken.JwtException;
 import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +19,7 @@ public class AuthService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     public AuthService(UserService userService, PasswordEncoder passwordEncoder,
                        JwtUtil jwtUtil) {
         this.userService = userService;
@@ -36,7 +39,9 @@ public class AuthService {
                             user.getRole().toString(),
                             user.getDateOfBirth()
                     );
+                    logger.info("User logged in");
                     return new LoginResponseDTO(token, userInfo);
+
                 });
     }
 
