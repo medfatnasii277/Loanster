@@ -1,0 +1,319 @@
+### =============================================================================
+### LoanApp - Comprehensive API Testing Suite
+### =============================================================================
+### This file contains all API tests for the complete LoanApp system
+### Services: Auth Service, Borrower Service, Officer Service, API Gateway
+### =============================================================================
+
+@baseUrl = http://localhost:4000
+@authUrl = http://localhost:4005
+@borrowerUrl = http://localhost:4001
+@officerUrl = http://localhost:8083
+
+### =============================================================================
+### 1. AUTHENTICATION SERVICE TESTS
+### =============================================================================
+
+### Register new user (BORROWER) - Via API Gateway
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePassword123!",
+  "role": "BORROWER",
+  "fullName": "John Doe",
+  "dateOfBirth": "1990-01-15"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("borrowerId", response.body.userId);
+  }
+%}
+
+### Register new user (OFFICER) - Via API Gateway
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "officer.smith@company.com",
+  "password": "OfficerPass123!",
+  "role": "OFFICER",
+  "fullName": "Officer Smith",
+  "dateOfBirth": "1985-05-20"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("officerId", response.body.userId);
+  }
+%}
+
+### Login as borrower - Via API Gateway
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "SecurePassword123!"
+}
+
+> {%
+  if (response.status === 200) {
+    client.global.set("borrowerToken", response.body.token);
+  }
+%}
+
+### Login as officer - Via API Gateway
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "officer.smith@company.com",
+  "password": "OfficerPass123!"
+}
+
+> {%
+  if (response.status === 200) {
+    client.global.set("officerToken", response.body.token);
+  }
+%}
+
+### Validate borrower token - Via API Gateway
+GET {{baseUrl}}/auth/validate/borrower
+Authorization: Bearer {{borrowerToken}}
+
+### Validate officer token - Via API Gateway
+GET {{baseUrl}}/auth/validate/officer
+Authorization: Bearer {{officerToken}}
+
+### =============================================================================
+### 2. BORROWER SERVICE TESTS - Via API Gateway
+### =============================================================================
+
+### Create borrower profile
+POST {{baseUrl}}/api/borrowers
+Content-Type: application/json
+Authorization: Bearer {{borrowerToken}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phoneNumber": "+1234567890",
+  "dateOfBirth": "1990-01-15",
+  "ssn": "123-45-6789",
+  "address": "123 Main Street",
+  "city": "New York",
+  "state": "NY",
+  "zipCode": "10001",
+  "annualIncome": 75000.0,
+  "employmentStatus": "EMPLOYED",
+  "employerName": "Tech Corp",
+  "employmentYears": 3
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("borrowerId", response.body.id);
+  }
+%}
+
+### Get borrower profile
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}
+Authorization: Bearer {{borrowerToken}}
+
+### Submit loan application
+POST {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications
+Content-Type: application/json
+Authorization: Bearer {{borrowerToken}}
+
+{
+  "loanType": "PERSONAL",
+  "loanAmount": 25000,
+  "loanTermMonths": 36,
+  "interestRate": 6.5,
+  "purpose": "Home improvement"
+}
+
+> {%
+  if (response.status === 201) {
+    client.global.set("loanApplicationId", response.body.id);
+  }
+%}
+
+### Get loan applications for borrower
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications
+Authorization: Bearer {{borrowerToken}}
+
+### Get specific loan application
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications/{{loanApplicationId}}
+Authorization: Bearer {{borrowerToken}}
+
+### Upload document
+POST {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
+Content-Type: multipart/form-data
+Authorization: Bearer {{borrowerToken}}
+
+# Use form data with these fields:
+# file: [select a file]
+# documentName: ID Proof
+# documentType: ID_PROOF
+# description: Driver's License
+
+### Get documents for borrower
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
+Authorization: Bearer {{borrowerToken}}
+
+### Calculate loan payment
+POST {{baseUrl}}/api/borrowers/calculate-loan
+Content-Type: application/json
+Authorization: Bearer {{borrowerToken}}
+
+{
+  "loanAmount": 25000,
+  "interestRate": 6.5,
+  "loanTermMonths": 36
+}
+
+### =============================================================================
+### 3. ADMIN ENDPOINTS VIA API GATEWAY - OFFICER ROLE REQUIRED
+### =============================================================================
+
+### Get all loan applications (Officer view)
+GET {{baseUrl}}/admin/loans
+Authorization: Bearer {{officerToken}}
+
+### Get specific loan application (Officer view)
+GET {{baseUrl}}/admin/loans/{{loanApplicationId}}
+Authorization: Bearer {{officerToken}}
+
+### Get loan applications by status
+GET {{baseUrl}}/admin/loans/status/PENDING
+Authorization: Bearer {{officerToken}}
+
+### Update loan application status (UNDER_REVIEW)
+PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
+Content-Type: application/json
+Authorization: Bearer {{officerToken}}
+
+{
+  "newStatus": "UNDER_REVIEW",
+  "updatedBy": "officer.smith"
+}
+
+### Update loan application status (APPROVED)
+PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
+Content-Type: application/json
+Authorization: Bearer {{officerToken}}
+
+{
+  "newStatus": "APPROVED",
+  "updatedBy": "officer.smith"
+}
+
+### Update loan application status (REJECTED with reason)
+PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
+Content-Type: application/json
+Authorization: Bearer {{officerToken}}
+
+{
+  "newStatus": "REJECTED",
+  "rejectionReason": "Insufficient credit score",
+  "updatedBy": "officer.smith"
+}
+
+### Get all documents (Officer view)
+GET {{baseUrl}}/admin/documents
+Authorization: Bearer {{officerToken}}
+
+### Get documents by status
+GET {{baseUrl}}/admin/documents/status/PENDING
+Authorization: Bearer {{officerToken}}
+
+### Get documents for specific loan application
+GET {{baseUrl}}/admin/loans/{{loanApplicationId}}/documents
+Authorization: Bearer {{officerToken}}
+
+### Update document status (UNDER_REVIEW)
+PUT {{baseUrl}}/admin/documents/1/status
+Content-Type: application/json
+Authorization: Bearer {{officerToken}}
+
+{
+  "newStatus": "UNDER_REVIEW",
+  "updatedBy": "officer.smith"
+}
+
+### Update document status (APPROVED)
+PUT {{baseUrl}}/admin/documents/1/status
+Content-Type: application/json
+Authorization: Bearer {{officerToken}}
+
+{
+  "newStatus": "APPROVED",
+  "updatedBy": "officer.smith"
+}
+
+### Update document status (REJECTED)
+PUT {{baseUrl}}/admin/documents/1/status
+Content-Type: application/json
+Authorization: Bearer {{officerToken}}
+
+{
+  "newStatus": "REJECTED",
+  "rejectionReason": "Document quality is poor, please resubmit",
+  "updatedBy": "officer.smith"
+}
+
+### Get all loan statuses
+GET {{baseUrl}}/admin/status/loan-statuses
+Authorization: Bearer {{officerToken}}
+
+### Get all document statuses
+GET {{baseUrl}}/admin/status/document-statuses
+Authorization: Bearer {{officerToken}}
+
+### Test unauthorized access (should fail with 403 Forbidden)
+GET {{baseUrl}}/admin/loans
+Authorization: Bearer {{borrowerToken}}
+
+### =============================================================================
+### 4. KAFKA EVENT TESTING
+### =============================================================================
+### Expected behavior:
+### 1. Officer updates loan status → Event published to Kafka
+### 2. Borrower service consumes event → Updates local status
+### 3. Verify status change appears in borrower service
+
+### Step 1: Update loan status (use officer endpoint above)
+### Step 2: Check loan status in borrower service (use borrower endpoint above)
+### Step 3: Verify status was synchronized via Kafka events
+
+### =============================================================================
+### 5. HEALTH CHECKS
+### =============================================================================
+
+### Check API Gateway health
+GET {{baseUrl}}/actuator/health
+
+### Check Auth Service health  
+GET {{authUrl}}/actuator/health
+
+### Check Borrower Service health
+GET {{borrowerUrl}}/actuator/health
+
+### Check Officer Service health
+GET {{officerUrl}}/actuator/health
+
+### =============================================================================
+### TESTING WORKFLOW
+### =============================================================================
+### 1. Run authentication tests first (register + login)
+### 2. Create borrower profile
+### 3. Submit loan application  
+### 4. Officer reviews and updates status
+### 5. Verify status synchronized via Kafka
+### 6. Test role-based access control
+### =============================================================================
