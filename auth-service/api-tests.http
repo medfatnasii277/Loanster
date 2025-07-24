@@ -98,12 +98,12 @@ Content-Type: application/json
 Authorization: Bearer {{borrowerToken}}
 
 {
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "phoneNumber": "+1234567890",
+  "firstName": "Johan",
+  "lastName": "Daoe",
+  "email": "johezn.doe@example.com",
+  "phoneNumber": "+1288567890",
   "dateOfBirth": "1990-01-15",
-  "ssn": "123-45-6789",
+  "ssn": "123-88-6789",
   "address": "123 Main Street",
   "city": "New York",
   "state": "NY",
