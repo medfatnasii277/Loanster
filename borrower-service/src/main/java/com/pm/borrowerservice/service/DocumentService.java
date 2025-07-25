@@ -57,25 +57,20 @@ public class DocumentService {
     public Document uploadDocument(Long borrowerId, MultipartFile file, String documentType, String description, Long loanApplicationId) throws IOException {
         try {
             log.info("Uploading document for borrower ID: {} with type: {}", borrowerId, documentType);
-            
             Borrower borrower = borrowerRepository.findById(borrowerId)
                     .orElseThrow(() -> new EntityNotFoundException("Borrower not found"));
-            
             LoanApplication loanApplication = null;
             if (loanApplicationId != null) {
                 loanApplication = loanApplicationRepository.findById(loanApplicationId)
                         .orElseThrow(() -> new EntityNotFoundException("Loan application not found"));
             }
-            
             validateFile(file);
-            
             String ext = FilenameUtils.getExtension(file.getOriginalFilename());
             String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Path dir = Paths.get(uploadPath, String.valueOf(borrowerId));
             Files.createDirectories(dir);
             Path filePath = dir.resolve(fileName);
             file.transferTo(filePath);
-            
             Document document = Document.builder()
                     .borrower(borrower)
                     .loanApplication(loanApplication)
@@ -86,20 +81,29 @@ public class DocumentService {
                     .fileSize(file.getSize())
                     .contentType(file.getContentType())
                     .description(description)
+                    .status(com.pm.borrowerservice.entity.DocumentStatus.PENDING)
                     .build();
-            
             document = documentRepository.save(document);
-            
-            // Publish Kafka event for document upload
             kafkaEventProducerService.publishDocumentUploadEvent(eventMapper.toDocumentUploadEvent(document));
-            
             log.info("Successfully uploaded document with ID: {} and published event", document.getId());
-            
             return document;
         } catch (Exception e) {
             log.error("Error uploading document for borrower ID: {}", borrowerId, e);
             throw e;
         }
+    }
+
+    @Transactional
+    public Document updateDocumentStatus(Long borrowerId, Long documentId, com.pm.borrowerservice.entity.DocumentStatus status, String officerId) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new EntityNotFoundException("Document not found"));
+        if (!document.getBorrower().getId().equals(borrowerId)) {
+            throw new EntityNotFoundException("Document does not belong to this borrower");
+        }
+        document.setStatus(status);
+        document.setStatusUpdatedBy(officerId);
+        document.setStatusUpdatedAt(java.time.LocalDateTime.now());
+        return documentRepository.save(document);
     }
 
     @Transactional

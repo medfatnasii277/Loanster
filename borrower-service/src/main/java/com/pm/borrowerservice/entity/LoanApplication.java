@@ -26,6 +26,7 @@ public class LoanApplication {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonBackReference
     private Borrower borrower;
 
     @NotBlank(message = "Loan type is required")

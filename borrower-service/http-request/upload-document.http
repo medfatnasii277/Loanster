@@ -1,0 +1,19 @@
+### Example HTTP request to test document upload
+
+POST http://localhost:8080/api/borrowers/1/documents
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.pdf"
+Content-Type: application/pdf
+
+<@file:./test.pdf>
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="documentType"
+
+INCOME_VERIFICATION
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="description"
+
+Test document upload
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

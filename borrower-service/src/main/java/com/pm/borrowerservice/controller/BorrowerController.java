@@ -1,3 +1,13 @@
+    // Update Document Status
+    @PatchMapping("/{borrowerId}/documents/{documentId}/status")
+    public ResponseEntity<Document> updateDocumentStatus(
+            @PathVariable Long borrowerId,
+            @PathVariable Long documentId,
+            @RequestParam("status") com.pm.borrowerservice.entity.DocumentStatus status,
+            @RequestHeader(value = "X-Officer-Id", required = false) String officerId) {
+        Document updated = documentService.updateDocumentStatus(borrowerId, documentId, status, officerId);
+        return ResponseEntity.ok(updated);
+    }
 package com.pm.borrowerservice.controller;
 
 import com.pm.borrowerservice.dto.BorrowerDto;
@@ -32,7 +42,8 @@ public class BorrowerController {
 
     // Borrower CRUD
     @PostMapping
-    public ResponseEntity<BorrowerDto> createBorrower(@Valid @RequestBody CreateBorrowerRequest request) {
+    public ResponseEntity<BorrowerDto> createBorrower(
+            @Valid @RequestBody CreateBorrowerRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(borrowerService.createBorrower(request));
     }
 
@@ -46,10 +57,7 @@ public class BorrowerController {
         return ResponseEntity.ok(borrowerService.getAllBorrowers());
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<BorrowerDto> getBorrowerByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(borrowerService.getBorrowerByUserId(userId));
-    }
+    // Removed getBorrowerByUserId endpoint and logic
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBorrower(@PathVariable Long id) {

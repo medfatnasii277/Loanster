@@ -19,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.UUID;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
@@ -176,7 +178,9 @@ class AuthControllerTest {
     @DisplayName("Should validate borrower token successfully")
     void validateBorrowerToken_WithValidBorrowerToken_ShouldReturnOk() throws Exception {
         // Given
-        when(authService.validateTokenWithRole(anyString(), eq("BORROWER"))).thenReturn(true);
+        LoginResponseDTO.UserInfo userInfo = new LoginResponseDTO.UserInfo(
+            UUID.randomUUID(), "test@email.com", "Test User", "BORROWER", null);
+        when(authService.getUserInfoFromToken(anyString(), eq("BORROWER"))).thenReturn(userInfo);
 
         // When & Then
         mockMvc.perform(get("/validate/borrower")
@@ -188,7 +192,7 @@ class AuthControllerTest {
     @DisplayName("Should return unauthorized for borrower token with officer role")
     void validateBorrowerToken_WithOfficerToken_ShouldReturnUnauthorized() throws Exception {
         // Given
-        when(authService.validateTokenWithRole(anyString(), eq("BORROWER"))).thenReturn(false);
+        when(authService.getUserInfoFromToken(anyString(), eq("BORROWER"))).thenReturn(null);
 
         // When & Then
         mockMvc.perform(get("/validate/borrower")

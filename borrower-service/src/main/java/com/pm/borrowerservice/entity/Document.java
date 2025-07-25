@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "documents")
+@lombok.Data
+@lombok.Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,6 +30,7 @@ public class Document {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "borrower_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonBackReference
     private Borrower borrower;
 
     @ManyToOne(fetch = FetchType.LAZY)

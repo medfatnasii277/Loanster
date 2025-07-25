@@ -125,7 +125,7 @@ GET {{baseUrl}}/api/borrowers/{{borrowerId}}
 Authorization: Bearer {{borrowerToken}}
 
 ### Submit loan application
-POST {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications
+POST {{baseUrl}}/api/borrowers/{{borrowerId}}/loans
 Content-Type: application/json
 Authorization: Bearer {{borrowerToken}}
 
@@ -144,11 +144,11 @@ Authorization: Bearer {{borrowerToken}}
 %}
 
 ### Get loan applications for borrower
-GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loans
 Authorization: Bearer {{borrowerToken}}
 
 ### Get specific loan application
-GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loan-applications/{{loanApplicationId}}
+GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loans/{{loanApplicationId}}
 Authorization: Bearer {{borrowerToken}}
 
 ### Upload document
@@ -166,8 +166,8 @@ Authorization: Bearer {{borrowerToken}}
 GET {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
 Authorization: Bearer {{borrowerToken}}
 
-### Calculate loan payment
-POST {{baseUrl}}/api/borrowers/calculate-loan
+### Calculate loan payment  to FIX
+POST {{baseUrl}}/api/borrowers/loans/calculate
 Content-Type: application/json
 Authorization: Bearer {{borrowerToken}}
 
@@ -199,7 +199,7 @@ Content-Type: application/json
 Authorization: Bearer {{officerToken}}
 
 {
-  "newStatus": "UNDER_REVIEW",
+  "newStatus": "APPROVED",
   "updatedBy": "officer.smith"
 }
 
