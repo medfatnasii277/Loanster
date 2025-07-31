@@ -1,13 +1,4 @@
-    // Update Document Status
-    @PatchMapping("/{borrowerId}/documents/{documentId}/status")
-    public ResponseEntity<Document> updateDocumentStatus(
-            @PathVariable Long borrowerId,
-            @PathVariable Long documentId,
-            @RequestParam("status") com.pm.borrowerservice.entity.DocumentStatus status,
-            @RequestHeader(value = "X-Officer-Id", required = false) String officerId) {
-        Document updated = documentService.updateDocumentStatus(borrowerId, documentId, status, officerId);
-        return ResponseEntity.ok(updated);
-    }
+
 package com.pm.borrowerservice.controller;
 
 import com.pm.borrowerservice.dto.BorrowerDto;
@@ -94,6 +85,18 @@ public class BorrowerController {
             @PathVariable LoanApplicationStatus status) {
         return ResponseEntity.ok(loanApplicationService.getLoanApplicationsByStatus(borrowerId, status));
     }
+
+    // Update Document Status
+    @PatchMapping("/{borrowerId}/documents/{documentId}/status")
+    public ResponseEntity<Document> updateDocumentStatus(
+            @PathVariable Long borrowerId,
+            @PathVariable Long documentId,
+            @RequestParam("status") com.pm.borrowerservice.entity.DocumentStatus status,
+            @RequestHeader(value = "X-Officer-Id", required = false) String officerId) {
+        Document updated = documentService.updateDocumentStatus(borrowerId, documentId, status, officerId);
+        return ResponseEntity.ok(updated);
+    }
+
 
     // Loan Calculator
     @PostMapping("/loans/calculate")

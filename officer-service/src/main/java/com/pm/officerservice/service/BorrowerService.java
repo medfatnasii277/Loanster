@@ -1,20 +1,24 @@
 package com.pm.officerservice.service;
 
-import com.pm.borrowerservice.events.BorrowerCreatedEvent;
-import com.pm.officerservice.model.Borrower;
-import com.pm.officerservice.repository.BorrowerRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.pm.borrowerservice.events.BorrowerCreatedEvent;
+import com.pm.officerservice.model.Borrower;
+import com.pm.officerservice.repository.BorrowerRepository;
+
+import lombok.RequiredArgsConstructor;
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class BorrowerService {
+
+    private static final Logger log = LoggerFactory.getLogger(BorrowerService.class);
 
     private final BorrowerRepository borrowerRepository;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;

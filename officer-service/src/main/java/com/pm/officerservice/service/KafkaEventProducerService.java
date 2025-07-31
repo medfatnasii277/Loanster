@@ -1,21 +1,25 @@
 package com.pm.officerservice.service;
 
-import com.pm.officerservice.events.DocumentStatusUpdateEvent;
-import com.pm.officerservice.events.LoanStatusUpdateEvent;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import com.pm.officerservice.events.DocumentStatusUpdateEvent;
+import com.pm.officerservice.events.LoanStatusUpdateEvent;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class KafkaEventProducerService {
+
+    private static final Logger log = LoggerFactory.getLogger(KafkaEventProducerService.class);
 
     private final KafkaTemplate<String, byte[]> kafkaTemplate;
 

@@ -151,7 +151,7 @@ Authorization: Bearer {{borrowerToken}}
 GET {{baseUrl}}/api/borrowers/{{borrowerId}}/loans/{{loanApplicationId}}
 Authorization: Bearer {{borrowerToken}}
 
-### Upload document
+### Upload document //files are saved in tmp folder FIx
 POST {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
 Content-Type: multipart/form-data
 Authorization: Bearer {{borrowerToken}}
@@ -166,15 +166,15 @@ Authorization: Bearer {{borrowerToken}}
 GET {{baseUrl}}/api/borrowers/{{borrowerId}}/documents
 Authorization: Bearer {{borrowerToken}}
 
-### Calculate loan payment  to FIX
+### Calculate loan payment
 POST {{baseUrl}}/api/borrowers/loans/calculate
 Content-Type: application/json
 Authorization: Bearer {{borrowerToken}}
 
 {
-  "loanAmount": 25000,
+  "amount": 25000,
   "interestRate": 6.5,
-  "loanTermMonths": 36
+  "termMonths": 36
 }
 
 ### =============================================================================
@@ -199,7 +199,7 @@ Content-Type: application/json
 Authorization: Bearer {{officerToken}}
 
 {
-  "newStatus": "APPROVED",
+  "newStatus": "UNDER_REVIEW",
   "updatedBy": "officer.smith"
 }
 
@@ -228,25 +228,25 @@ Authorization: Bearer {{officerToken}}
 GET {{baseUrl}}/admin/documents
 Authorization: Bearer {{officerToken}}
 
-### Get documents by status
+### Get documents by status //retrun always empty list TO FIX
 GET {{baseUrl}}/admin/documents/status/PENDING
 Authorization: Bearer {{officerToken}}
 
-### Get documents for specific loan application
+### Get documents for specific loan application  //LOAN APPLICATION ID IS NULL IN THE DOCUEMTNS TALBE TO FOX
 GET {{baseUrl}}/admin/loans/{{loanApplicationId}}/documents
 Authorization: Bearer {{officerToken}}
 
-### Update document status (UNDER_REVIEW)
-PUT {{baseUrl}}/admin/documents/1/status
+### Update document status (UNDER_REVIEW)  //TO FIX 404
+PUT {{baseUrl}}/admin/32/documents/5/status
 Content-Type: application/json
 Authorization: Bearer {{officerToken}}
 
 {
-  "newStatus": "UNDER_REVIEW",
+  "newStatus": "Verified",
   "updatedBy": "officer.smith"
 }
 
-### Update document status (APPROVED)
+### Update document status (APPROVED)  // 400 TO FIX
 PUT {{baseUrl}}/admin/documents/1/status
 Content-Type: application/json
 Authorization: Bearer {{officerToken}}
@@ -295,16 +295,16 @@ Authorization: Bearer {{borrowerToken}}
 ### 5. HEALTH CHECKS
 ### =============================================================================
 
-### Check API Gateway health
+### Check API Gateway health  //fix
 GET {{baseUrl}}/actuator/health
 
-### Check Auth Service health  
+### Check Auth Service health    //fix
 GET {{authUrl}}/actuator/health
 
 ### Check Borrower Service health
 GET {{borrowerUrl}}/actuator/health
 
-### Check Officer Service health
+### Check Officer Service health  //fix
 GET {{officerUrl}}/actuator/health
 
 ### =============================================================================

@@ -1,14 +1,7 @@
 package com.pm.officerservice.listener;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.pm.borrowerservice.events.BorrowerCreatedEvent;
-import com.pm.borrowerservice.events.DocumentUploadEvent;
-import com.pm.borrowerservice.events.LoanApplicationEvent;
-import com.pm.officerservice.service.BorrowerService;
-import com.pm.officerservice.service.DocumentService;
-import com.pm.officerservice.service.LoanApplicationService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -16,10 +9,21 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.pm.borrowerservice.events.BorrowerCreatedEvent;
+import com.pm.borrowerservice.events.DocumentUploadEvent;
+import com.pm.borrowerservice.events.LoanApplicationEvent;
+import com.pm.officerservice.service.BorrowerService;
+import com.pm.officerservice.service.DocumentService;
+import com.pm.officerservice.service.LoanApplicationService;
+
+import lombok.RequiredArgsConstructor;
+
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class EventListener {
+
+    private static final Logger log = LoggerFactory.getLogger(EventListener.class);
 
     private final BorrowerService borrowerService;
     private final LoanApplicationService loanApplicationService;

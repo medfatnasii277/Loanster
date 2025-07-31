@@ -16,7 +16,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,9 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-
 @RequiredArgsConstructor
-@Slf4j
 @Tag(name = "Admin Operations", description = "Admin endpoints for managing loan applications and documents")
 public class AdminController {
 
@@ -35,8 +34,10 @@ public class AdminController {
     private final DocumentService documentService;
     private final LoanApplicationRepository loanApplicationRepository;
     private final DocumentRepository documentRepository;
+    private static final Logger log = LoggerFactory.getLogger(LoanApplicationService.class);
 
     // Loan Application Management
+
 
     @GetMapping("/loans")
     @Operation(summary = "Get all loan applications", 
@@ -86,8 +87,7 @@ public class AdminController {
             @PathVariable Long applicationId,
             @Valid @RequestBody LoanStatusUpdateRequest request) {
         
-        log.info("Admin request to update loan status for application ID: {} to status: {}", 
-                applicationId, request.getNewStatus());
+
         
         loanApplicationService.updateLoanStatus(applicationId, request);
         
@@ -156,8 +156,7 @@ public class AdminController {
             @PathVariable Long documentId,
             @Valid @RequestBody DocumentStatusUpdateRequest request) {
         
-        log.info("Admin request to update document status for document ID: {} to status: {}", 
-                documentId, request.getNewStatus());
+
         
         documentService.updateDocumentStatus(documentId, request);
         

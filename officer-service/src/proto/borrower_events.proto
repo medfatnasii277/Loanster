@@ -54,6 +54,7 @@ message DocumentUploadEvent {
   int64 file_size = 7;
   string content_type = 8;
   string uploaded_at = 9;
-  string event_id = 10;
-  string event_timestamp = 11;
+  string status = 10;
+  string event_id = 11;
+  string event_timestamp = 12;
 }

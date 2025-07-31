@@ -66,6 +66,7 @@ public class EventMapper {
                 .setFilePath(document.getFilePath())
                 .setFileSize(document.getFileSize())
                 .setContentType(document.getContentType())
+                .setStatus(document.getStatus().name())
                 .setEventId(UUID.randomUUID().toString())
                 .setEventTimestamp(formatDateTime(LocalDateTime.now()))
                 .build();

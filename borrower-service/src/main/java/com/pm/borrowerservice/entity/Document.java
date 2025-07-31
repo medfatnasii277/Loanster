@@ -14,10 +14,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "documents")
-@lombok.Data
-@lombok.Builder
-@lombok.NoArgsConstructor
-@lombok.AllArgsConstructor
 @Data
 @Builder
 @NoArgsConstructor

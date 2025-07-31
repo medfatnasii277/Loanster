@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +24,12 @@ import com.pm.officerservice.repository.DocumentRepository;
 import com.pm.officerservice.repository.LoanApplicationRepository;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class DocumentService {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentService.class);
 
     private final DocumentRepository documentRepository;
     private final BorrowerRepository borrowerRepository;
@@ -71,6 +73,7 @@ public class DocumentService {
                     .fileSize(event.getFileSize())
                     .contentType(event.getContentType())
                     .uploadedAtSource(uploadedAtSource)
+                    .status(DocumentStatus.PENDING)
                     .build();
 
             documentRepository.save(document);
