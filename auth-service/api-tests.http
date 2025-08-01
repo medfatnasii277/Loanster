@@ -228,36 +228,28 @@ Authorization: Bearer {{officerToken}}
 GET {{baseUrl}}/admin/documents
 Authorization: Bearer {{officerToken}}
 
-### Get documents by status //retrun always empty list TO FIX
+### Get documents by status
 GET {{baseUrl}}/admin/documents/status/PENDING
 Authorization: Bearer {{officerToken}}
 
-### Get documents for specific loan application  //LOAN APPLICATION ID IS NULL IN THE DOCUEMTNS TALBE TO FOX
+### Get documents for specific loan application
 GET {{baseUrl}}/admin/loans/{{loanApplicationId}}/documents
 Authorization: Bearer {{officerToken}}
 
-### Update document status (UNDER_REVIEW)  //TO FIX 404
-PUT {{baseUrl}}/admin/32/documents/5/status
+### Update document status (UNDER_REVIEW)
+PUT {{baseUrl}}/admin/documents/8/status
 Content-Type: application/json
 Authorization: Bearer {{officerToken}}
 
 {
-  "newStatus": "Verified",
+  "newStatus": "VERIFIED",
   "updatedBy": "officer.smith"
 }
 
-### Update document status (APPROVED)  // 400 TO FIX
-PUT {{baseUrl}}/admin/documents/1/status
-Content-Type: application/json
-Authorization: Bearer {{officerToken}}
 
-{
-  "newStatus": "APPROVED",
-  "updatedBy": "officer.smith"
-}
 
 ### Update document status (REJECTED)
-PUT {{baseUrl}}/admin/documents/1/status
+PUT {{baseUrl}}/admin/documents/8/status
 Content-Type: application/json
 Authorization: Bearer {{officerToken}}
 

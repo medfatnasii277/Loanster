@@ -62,6 +62,16 @@ public class DocumentService {
             // Parse the timestamp
             LocalDateTime uploadedAtSource = parseTimestamp(event.getEventTimestamp());
 
+            // Parse status from event, default to PENDING if not provided or invalid
+            DocumentStatus status = DocumentStatus.PENDING;
+            try {
+                if (!event.getStatus().isEmpty()) {
+                    status = DocumentStatus.valueOf(event.getStatus());
+                }
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid status '{}' in event, defaulting to PENDING", event.getStatus());
+            }
+
             // Create and save document
             Document document = Document.builder()
                     .documentId(event.getDocumentId())
@@ -73,7 +83,7 @@ public class DocumentService {
                     .fileSize(event.getFileSize())
                     .contentType(event.getContentType())
                     .uploadedAtSource(uploadedAtSource)
-                    .status(DocumentStatus.PENDING)
+                    .status(status)
                     .build();
 
             documentRepository.save(document);
