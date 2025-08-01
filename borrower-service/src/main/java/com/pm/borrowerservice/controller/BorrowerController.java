@@ -48,6 +48,11 @@ public class BorrowerController {
         return ResponseEntity.ok(borrowerService.getAllBorrowers());
     }
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<BorrowerDto> getBorrowerByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(borrowerService.getBorrowerByEmail(email));
+    }
+
     // Removed getBorrowerByUserId endpoint and logic
 
     @DeleteMapping("/{id}")

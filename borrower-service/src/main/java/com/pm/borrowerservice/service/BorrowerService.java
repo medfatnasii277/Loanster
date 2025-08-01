@@ -59,6 +59,12 @@ public class BorrowerService {
         return borrowerMapper.toDto(borrower);
     }
 
+    public BorrowerDto getBorrowerByEmail(String email) {
+        Borrower borrower = borrowerRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("Borrower not found with email: " + email));
+        return borrowerMapper.toDto(borrower);
+    }
+
     public List<BorrowerDto> getAllBorrowers() {
         logger.info("Get All borrower");
 

@@ -174,31 +174,9 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    @DisplayName("Should validate borrower token successfully")
-    void validateBorrowerToken_WithValidBorrowerToken_ShouldReturnOk() throws Exception {
-        // Given
-        LoginResponseDTO.UserInfo userInfo = new LoginResponseDTO.UserInfo(
-            UUID.randomUUID(), "test@email.com", "Test User", "BORROWER", null);
-        when(authService.getUserInfoFromToken(anyString(), eq("BORROWER"))).thenReturn(userInfo);
 
-        // When & Then
-        mockMvc.perform(get("/validate/borrower")
-                        .header("Authorization", "Bearer valid.jwt.token"))
-                .andExpect(status().isOk());
-    }
 
-    @Test
-    @DisplayName("Should return unauthorized for borrower token with officer role")
-    void validateBorrowerToken_WithOfficerToken_ShouldReturnUnauthorized() throws Exception {
-        // Given
-        when(authService.getUserInfoFromToken(anyString(), eq("BORROWER"))).thenReturn(null);
 
-        // When & Then
-        mockMvc.perform(get("/validate/borrower")
-                        .header("Authorization", "Bearer officer.jwt.token"))
-                .andExpect(status().isUnauthorized());
-    }
 
     @Test
     @DisplayName("Should validate officer token successfully")

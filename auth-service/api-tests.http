@@ -194,7 +194,7 @@ GET {{baseUrl}}/admin/loans/status/PENDING
 Authorization: Bearer {{officerToken}}
 
 ### Update loan application status (UNDER_REVIEW)
-PUT {{baseUrl}}/admin/loans/{{loanApplicationId}}/status
+PUT {{baseUrl}}/admin/loans/11/status
 Content-Type: application/json
 Authorization: Bearer {{officerToken}}
 
