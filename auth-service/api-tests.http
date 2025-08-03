@@ -125,7 +125,7 @@ GET {{baseUrl}}/api/borrowers/{{borrowerId}}
 Authorization: Bearer {{borrowerToken}}
 
 ### Submit loan application
-POST {{baseUrl}}/api/borrowers/{{borrowerId}}/loans
+POST {{baseUrl}}/api/borrowers/43/loans
 Content-Type: application/json
 Authorization: Bearer {{borrowerToken}}
 

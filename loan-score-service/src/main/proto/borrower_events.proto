@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package com.pm.borrowerservice.events;
+
+option java_package = "com.pm.borrowerservice.events";
+option java_outer_classname = "BorrowerEventsProto";
+option java_multiple_files = true;
+
+// Borrower Created Event
+message BorrowerCreatedEvent {
+  int64 borrower_id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+  string phone_number = 5;
+  string date_of_birth = 6;
+  string ssn = 7;
+  string address = 8;
+  string city = 9;
+  string state = 10;
+  string zip_code = 11;
+  double annual_income = 12;
+  string employment_status = 13;
+  string employer_name = 14;
+  int32 employment_years = 15;
+  string created_at = 16;
+  string event_id = 17;
+  string event_timestamp = 18;
+}
+
+// Loan Application Event
+message LoanApplicationEvent {
+  int64 application_id = 1;
+  int64 borrower_id = 2;
+  double loan_amount = 3;
+  int32 loan_term_months = 4;
+  string loan_purpose = 5;
+  double interest_rate = 6;
+  double monthly_payment = 7;
+  string status = 8;
+  string applied_at = 9;
+  string event_id = 10;
+  string event_timestamp = 11;
+}
+
+// Document Upload Event
+message DocumentUploadEvent {
+  int64 document_id = 1;
+  int64 borrower_id = 2;
+  int64 loan_application_id = 3;
+  string document_type = 4;
+  string file_name = 5;
+  string file_path = 6;
+  int64 file_size = 7;
+  string content_type = 8;
+  string uploaded_at = 9;
+  string status = 10;
+  string event_id = 11;
+  string event_timestamp = 12;
+}

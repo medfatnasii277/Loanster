@@ -1,0 +1,13 @@
+### Loan Score Service API Tests
+
+# Health Check
+GET http://localhost:4003/health
+Content-Type: application/json
+
+###
+
+# Get Loan Score for Application
+GET http://localhost:4003/api/loan-scores/application/15
+Content-Type: application/json
+
+
