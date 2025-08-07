@@ -267,6 +267,16 @@ Authorization: Bearer {{officerToken}}
 GET {{baseUrl}}/admin/status/document-statuses
 Authorization: Bearer {{officerToken}}
 
+
+
+### Get application score
+GET {{baseUrl}}/admin/loans/15/score
+Authorization: Bearer {{officerToken}}
+
+
+
+
+
 ### Test unauthorized access (should fail with 403 Forbidden)
 GET {{baseUrl}}/admin/loans
 Authorization: Bearer {{borrowerToken}}

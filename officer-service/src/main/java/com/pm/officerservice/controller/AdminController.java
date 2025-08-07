@@ -3,6 +3,7 @@ package com.pm.officerservice.controller;
 import com.pm.officerservice.dto.DocumentResponse;
 import com.pm.officerservice.dto.DocumentStatusUpdateRequest;
 import com.pm.officerservice.dto.LoanApplicationResponse;
+import com.pm.officerservice.dto.LoanScoreResponse;
 import com.pm.officerservice.dto.LoanStatusUpdateRequest;
 import com.pm.officerservice.model.Document;
 import com.pm.officerservice.model.DocumentStatus;
@@ -12,6 +13,7 @@ import com.pm.officerservice.repository.DocumentRepository;
 import com.pm.officerservice.repository.LoanApplicationRepository;
 import com.pm.officerservice.service.DocumentService;
 import com.pm.officerservice.service.LoanApplicationService;
+import com.pm.officerservice.service.LoanScoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -32,6 +34,7 @@ public class AdminController {
 
     private final LoanApplicationService loanApplicationService;
     private final DocumentService documentService;
+    private final LoanScoreService loanScoreService;
     private final LoanApplicationRepository loanApplicationRepository;
     private final DocumentRepository documentRepository;
     private static final Logger log = LoggerFactory.getLogger(LoanApplicationService.class);
@@ -179,5 +182,58 @@ public class AdminController {
     public ResponseEntity<DocumentStatus[]> getAvailableDocumentStatuses() {
         log.info("Admin request to get available document statuses");
         return ResponseEntity.ok(DocumentStatus.values());
+    }
+
+    // Loan Score Management
+
+    @GetMapping("/loans/{applicationId}/score")
+    @Operation(summary = "Get loan score for application", 
+               description = "Retrieve the calculated loan score for a specific loan application")
+    public ResponseEntity<LoanScoreResponse> getLoanScore(@PathVariable Long applicationId) {
+        log.info("Admin request to get loan score for application ID: {}", applicationId);
+        
+        return loanScoreService.getLoanScore(applicationId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/borrowers/{borrowerId}/scores")
+    @Operation(summary = "Get all scores for borrower", 
+               description = "Retrieve all loan scores for a specific borrower")
+    public ResponseEntity<List<LoanScoreResponse>> getBorrowerScores(@PathVariable Long borrowerId) {
+        log.info("Admin request to get loan scores for borrower ID: {}", borrowerId);
+        
+        List<LoanScoreResponse> scores = loanScoreService.getBorrowerScores(borrowerId);
+        return ResponseEntity.ok(scores);
+    }
+
+    @GetMapping("/scores/grade/{grade}")
+    @Operation(summary = "Get scores by grade", 
+               description = "Retrieve loan scores filtered by grade (EXCELLENT, GOOD, FAIR, POOR)")
+    public ResponseEntity<List<LoanScoreResponse>> getScoresByGrade(@PathVariable String grade) {
+        log.info("Admin request to get loan scores by grade: {}", grade);
+        
+        List<LoanScoreResponse> scores = loanScoreService.getScoresByGrade(grade);
+        return ResponseEntity.ok(scores);
+    }
+
+    @GetMapping("/scores/risk/{risk}")
+    @Operation(summary = "Get scores by risk", 
+               description = "Retrieve loan scores filtered by risk assessment (LOW, MEDIUM, HIGH)")
+    public ResponseEntity<List<LoanScoreResponse>> getScoresByRisk(@PathVariable String risk) {
+        log.info("Admin request to get loan scores by risk: {}", risk);
+        
+        List<LoanScoreResponse> scores = loanScoreService.getScoresByRisk(risk);
+        return ResponseEntity.ok(scores);
+    }
+
+    @GetMapping("/scores/service-status")
+    @Operation(summary = "Check loan score service status", 
+               description = "Check if the loan score service is available")
+    public ResponseEntity<Boolean> getLoanScoreServiceStatus() {
+        log.info("Admin request to check loan score service status");
+        
+        boolean isAvailable = loanScoreService.isLoanScoreServiceAvailable();
+        return ResponseEntity.ok(isAvailable);
     }
 } 
