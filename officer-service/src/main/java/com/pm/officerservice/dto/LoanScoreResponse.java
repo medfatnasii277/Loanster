@@ -19,11 +19,11 @@ import java.time.LocalDateTime;
 public class LoanScoreResponse {
 
     private Long id;
-    private Long applicationId;
+    private Long loanApplicationId; // Updated field name for consistency
     private Long borrowerId;
     private Integer totalScore;
-    private String scoreGrade; // EXCELLENT, GOOD, FAIR, POOR
-    private String riskAssessment; // LOW, MEDIUM, HIGH
+    private String scoreGrade; // EXCELLENT, GOOD, FAIR, POOR, SERVICE_DOWN
+    private String riskAssessment; // LOW, MEDIUM, HIGH, UNKNOWN
     
     // Individual score components
     private Integer employmentScore;
@@ -33,10 +33,33 @@ public class LoanScoreResponse {
     private Integer employmentYearsScore;
     private Integer loanTermScore;
     
+    // Score breakdown for detailed view
+    private ScoreBreakdown scoreBreakdown;
+    
     // Additional metrics
     private BigDecimal debtToIncomeRatio;
     private String scoringReason;
+    private String notes; // For error messages when service is down
     private LocalDateTime calculatedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    // Service availability flag
+    private boolean serviceAvailable = true;
+
+    /**
+     * Inner class for detailed score breakdown
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ScoreBreakdown {
+        private Integer creditScore;
+        private Integer income;
+        private Integer employment;
+        private Integer debtToIncome;
+        private Integer loanToValue;
+        private Integer creditHistory;
+    }
 }

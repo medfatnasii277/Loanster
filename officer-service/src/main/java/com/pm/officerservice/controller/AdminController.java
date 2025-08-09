@@ -192,7 +192,7 @@ public class AdminController {
     public ResponseEntity<LoanScoreResponse> getLoanScore(@PathVariable Long applicationId) {
         log.info("Admin request to get loan score for application ID: {}", applicationId);
         
-        return loanScoreService.getLoanScore(applicationId)
+        return loanScoreService.getLoanScoreSync(applicationId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -230,10 +230,22 @@ public class AdminController {
     @GetMapping("/scores/service-status")
     @Operation(summary = "Check loan score service status", 
                description = "Check if the loan score service is available")
-    public ResponseEntity<Boolean> getLoanScoreServiceStatus() {
+    public ResponseEntity<LoanScoreService.ServiceStatus> getLoanScoreServiceStatus() {
         log.info("Admin request to check loan score service status");
         
-        boolean isAvailable = loanScoreService.isLoanScoreServiceAvailable();
-        return ResponseEntity.ok(isAvailable);
+        LoanScoreService.ServiceStatus status = loanScoreService.getServiceStatus();
+        return ResponseEntity.ok(status);
+    }
+
+    // Test endpoint to simulate circuit breaker behavior
+    @GetMapping("/scores/test-circuit-breaker/{applicationId}")
+    @Operation(summary = "Test circuit breaker functionality", 
+               description = "Test endpoint to verify circuit breaker behavior")
+    public ResponseEntity<LoanScoreResponse> testCircuitBreaker(@PathVariable Long applicationId) {
+        log.info("Testing circuit breaker for application ID: {}", applicationId);
+        
+        return loanScoreService.getLoanScoreSync(applicationId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(503).build()); // Service Unavailable
     }
 } 
