@@ -152,6 +152,7 @@ public class AdminController {
         return ResponseEntity.ok(documents);
     }
 
+
     @PutMapping("/documents/{documentId}/status")
     @Operation(summary = "Update document status", 
                description = "Update the status of a document and publish event to Kafka")
