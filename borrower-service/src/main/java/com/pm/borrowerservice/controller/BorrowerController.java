@@ -135,6 +135,13 @@ public class BorrowerController {
         return ResponseEntity.ok(documentService.getDocumentsForBorrower(borrowerId));
     }
 
+    @GetMapping("/{borrowerId}/documents/{documentId}")
+    public ResponseEntity<Document> getDocument(
+            @PathVariable Long borrowerId,
+            @PathVariable Long documentId) {
+        return ResponseEntity.ok(documentService.getDocument(borrowerId, documentId));
+    }
+
     @DeleteMapping("/{borrowerId}/documents/{documentId}")
     public ResponseEntity<Void> deleteDocument(
             @PathVariable Long borrowerId,

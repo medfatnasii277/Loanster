@@ -49,6 +49,15 @@ public class DocumentService {
         return documentRepository.findByBorrowerId(borrowerId);
     }
 
+    public Document getDocument(Long borrowerId, Long documentId) {
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new EntityNotFoundException("Document not found"));
+        if (!document.getBorrower().getId().equals(borrowerId)) {
+            throw new EntityNotFoundException("Document does not belong to this borrower");
+        }
+        return document;
+    }
+
     public List<Document> getDocumentsForLoanApplication(Long loanApplicationId) {
         return documentRepository.findByLoanApplicationId(loanApplicationId);
     }
