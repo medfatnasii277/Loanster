@@ -3,6 +3,7 @@ package com.pm.borrowerservice.controller;
 import com.pm.borrowerservice.dto.BorrowerDto;
 import com.pm.borrowerservice.dto.CreateBorrowerRequest;
 import com.pm.borrowerservice.dto.LoanApplicationDto;
+import com.pm.borrowerservice.dto.DocumentDto;
 import com.pm.borrowerservice.entity.Document;
 import com.pm.borrowerservice.entity.LoanApplicationStatus;
 import com.pm.borrowerservice.service.BorrowerService;
@@ -127,7 +128,7 @@ public class BorrowerController {
 
     // Document Upload & Management
     @PostMapping("/{borrowerId}/documents")
-    public ResponseEntity<Document> uploadDocument(
+    public ResponseEntity<DocumentDto> uploadDocument(
             @PathVariable Long borrowerId,
             @RequestParam("file") MultipartFile file,
             @RequestParam("documentType") String documentType,
@@ -135,29 +136,33 @@ public class BorrowerController {
             @RequestParam(value = "loanApplicationId", required = false) Long loanApplicationId
     ) throws IOException {
         Document doc = documentService.uploadDocument(borrowerId, file, documentType, description, loanApplicationId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(doc);
+        return ResponseEntity.status(HttpStatus.CREATED).body(DocumentDto.fromEntity(doc));
     }
 
     @GetMapping("/{borrowerId}/documents")
-    public ResponseEntity<List<Document>> getDocumentsForBorrower(@PathVariable Long borrowerId) {
-        return ResponseEntity.ok(documentService.getDocumentsForBorrower(borrowerId));
+    public ResponseEntity<List<DocumentDto>> getDocumentsForBorrower(@PathVariable Long borrowerId) {
+        List<DocumentDto> documents = documentService.getDocumentsForBorrower(borrowerId).stream()
+                .map(DocumentDto::fromEntity)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(documents);
     }
 
     @GetMapping("/{borrowerId}/documents/{documentId}")
-    public ResponseEntity<Document> getDocument(
+    public ResponseEntity<DocumentDto> getDocument(
             @PathVariable Long borrowerId,
             @PathVariable Long documentId) {
-        return ResponseEntity.ok(documentService.getDocument(borrowerId, documentId));
+        Document document = documentService.getDocument(borrowerId, documentId);
+        return ResponseEntity.ok(DocumentDto.fromEntity(document));
     }
     
     @GetMapping("/{borrowerId}/documents/{documentId}/details")
-    public ResponseEntity<Document> getDocumentDetails(
+    public ResponseEntity<DocumentDto> getDocumentDetails(
             @PathVariable Long borrowerId,
             @PathVariable Long documentId) {
         log.info("Getting detailed document information for borrower: {} and document: {}", borrowerId, documentId);
         // We'll reuse the same service method for now, but in a real app this would fetch additional details
         Document detailedDocument = documentService.getDocument(borrowerId, documentId);
-        return ResponseEntity.ok(detailedDocument);
+        return ResponseEntity.ok(DocumentDto.fromEntity(detailedDocument));
     }
 
     @DeleteMapping("/{borrowerId}/documents/{documentId}")

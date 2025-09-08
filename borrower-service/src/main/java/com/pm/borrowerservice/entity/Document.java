@@ -31,6 +31,7 @@ public class Document {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "loan_application_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference(value = "document-loan")
     private LoanApplication loanApplication;
 
     @NotBlank(message = "Document name is required")
